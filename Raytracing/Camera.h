@@ -1,7 +1,5 @@
 #pragma once
 
-using namespace DirectX::SimpleMath;
-
 //----------------------------------------------------------------------------------------------------------------------------------------
 class Camera
 {
@@ -12,12 +10,12 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void				LookAt(const Vector3& _worldPosition);
-	void				SetFOV(float _fieldOfView)		{ fieldOfView = _fieldOfView; UpdateInternals(); }
-	void				SetAspect(float _aspect)		{ aspect = _aspect; UpdateInternals(); }
+	void				SetFOV(Vector3::Type _fieldOfView)		{ fieldOfView = _fieldOfView; UpdateInternals(); }
+	void				SetAspect(Vector3::Type _aspect)		{ aspect = _aspect; UpdateInternals(); }
 
-	void				CalculateRay(float _tx, float _ty, Vector3& _origin, Vector3& _direction) const;
+	void				CalculateRay(Vector3::Type _tx, Vector3::Type _ty, Vector3& _origin, Vector3& _direction) const;
 
-	float				GetNearPlane() const { return nearPlane; }
+	Vector3::Type		GetNearPlane() const { return nearPlane; }
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -25,11 +23,11 @@ private:
 	Vector3				direction;
 	Vector3				up;
 	Vector3				right;
-	float				nearPlane;
-	float				fieldOfView;
-	float				aspect;
-	float				nearPlaneWidth;
-	float				nearPlaneHeight;
+	Vector3::Type		nearPlane;
+	Vector3::Type		fieldOfView;
+	Vector3::Type		aspect;
+	Vector3::Type		nearPlaneWidth;
+	Vector3::Type		nearPlaneHeight;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------

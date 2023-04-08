@@ -42,9 +42,12 @@
     <ClInclude Include="Raytracing\Objects\InfinitePlane.h">
       <Filter>Raytracing\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="SimpleMath.inl" />
-    <ClInclude Include="SimpleMath.h" />
-    <ClInclude Include="FastMath.h" />
+    <ClInclude Include="Raytracing\Vector3.h">
+      <Filter>Raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="Raytracing\Material.h">
+      <Filter>Raytracing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Raytracer.rc">
@@ -79,8 +82,9 @@
     <ClCompile Include="Raytracing\Objects\TraceableObject.cpp">
       <Filter>Raytracing\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="SimpleMath.cpp" />
-    <ClCompile Include="FastMath.cpp" />
+    <ClCompile Include="Raytracing\Material.cpp">
+      <Filter>Raytracing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

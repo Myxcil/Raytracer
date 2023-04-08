@@ -154,14 +154,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="FastMath.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Raytracing\Camera.h" />
+    <ClInclude Include="Raytracing\Material.h" />
     <ClInclude Include="Raytracing\Objects\TraceableObject.h" />
     <ClInclude Include="Raytracing\Objects\InfinitePlane.h" />
     <ClInclude Include="Raytracing\Objects\Sphere.h" />
     <ClInclude Include="Raytracing\Raytracer.h" />
-    <ClInclude Include="SimpleMath.h" />
+    <ClInclude Include="Raytracing\Vector3.h" />
     <ClInclude Include="Win32\framework.h" />
     <ClInclude Include="Win32\resource.h" />
     <ClInclude Include="Win32\targetver.h" />
@@ -175,7 +175,6 @@
     <Image Include="Win32\small.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FastMath.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -183,14 +182,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Raytracing\Camera.cpp" />
+    <ClCompile Include="Raytracing\Material.cpp" />
     <ClCompile Include="Raytracing\Objects\InfinitePlane.cpp" />
     <ClCompile Include="Raytracing\Objects\Sphere.cpp" />
     <ClCompile Include="Raytracing\Objects\TraceableObject.cpp" />
     <ClCompile Include="Raytracing\Raytracer.cpp" />
-    <ClCompile Include="SimpleMath.cpp" />
-    <ClInclude Include="SimpleMath.inl">
-      <FileType>CppCode</FileType>
-    </ClInclude>
     <ClCompile Include="Win32\Win32Main.cpp" />
   </ItemGroup>
   <ItemGroup>

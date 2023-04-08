@@ -9,7 +9,6 @@
 
 // Fügen Sie hier Header hinzu, die vorkompiliert werden sollen.
 #include "Win32/framework.h"
-#include "SimpleMath.h"
-#include "FastMath.h"
+#include "Raytracing/Vector3.h"
 
 #endif //PCH_H
