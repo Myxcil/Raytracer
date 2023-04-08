@@ -11,7 +11,7 @@ public:
 	~Sphere();
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	void			Raycast(HitInfo& _hitInfo, const Vector3& _rayOrigin, const Vector3& _rayDirection, Vector3::Type _tMin, Vector3::Type _tMax) const override;
+	void			Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const override;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------

@@ -14,19 +14,19 @@ InfinitePlane::~InfinitePlane()
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void InfinitePlane::Raycast(HitInfo& _hitInfo, const Vector3& _rayOrigin, const Vector3& _rayDirection, Vector3::Type _tMin, Vector3::Type _tMax) const
+void InfinitePlane::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 {
-	Vector3::Type denom = _rayDirection.Dot(normal);
+	Vector3::Type denom = _ray.direction.Dot(normal);
 	if (fabs(denom) > 1e-6)
 	{
-		Vector3 diff = center - _rayOrigin;
+		Vector3 diff = center - _ray.origin;
 		Vector3::Type distance = diff.Dot(normal) / denom;
 		if (distance > 1e-6)
 		{
 			_hitInfo.isHit = true;
 			_hitInfo.distance = distance;
 			
-			_hitInfo.point = _rayOrigin + _rayDirection * distance;
+			_hitInfo.point = _ray.origin + _ray.direction * distance;
 			_hitInfo.surfaceNormal = normal;
 
 			OnHit(_hitInfo);

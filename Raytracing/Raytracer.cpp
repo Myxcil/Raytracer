@@ -18,7 +18,7 @@ Raytracer::Raytracer() :
 	rcpDimension(0,0,0),
 	currLine(0),
 	samplesPerPixel(100),
-	maxRaycastDepth(8)
+	maxRaycastDepth(16)
 {
 	InitScene();
 }
@@ -42,11 +42,11 @@ Raytracer::~Raytracer()
 //----------------------------------------------------------------------------------------------------------------------------------------
 void Raytracer::InitScene()
 {
-	traceableObjects.push_back(new Sphere(Vector3(0, 1.0f, 0), 1.0f, new Material(Vector3(0.7f, 0.7f, 0.0f))));
-	traceableObjects.push_back(new Sphere(Vector3(1.0f, 0.5f, -1.5f), 0.25f, new Material(Vector3(0.8f, 0.1f, 0.1f))));
-	traceableObjects.push_back(new Sphere(Vector3(-5.5f, 0.0f, 0.5f), 3.0f, new Material(Vector3(0.2f, 0.8f, 0.3f))));
+	traceableObjects.push_back(new Sphere(Vector3(0, 1.0f, 0), 1.0f, new LambertMaterial(Vector3(0.7f, 0.7f, 0.0f))));
+	traceableObjects.push_back(new Sphere(Vector3(1.0f, 0.5f, -1.5f), 0.25f, new LambertMaterial(Vector3(0.8f, 0.1f, 0.1f))));
+	traceableObjects.push_back(new Sphere(Vector3(-5.5f, 0.0f, 0.5f), 3.0f, new MetalMaterial(Vector3(0.2f, 0.8f, 0.3f))));
 
-	traceableObjects.push_back(new InfinitePlane(Vector3(0, 0, 0), Vector3(0, 1, 0), new Material(Vector3(0.1f, 0.2f, 0.5f))));
+	traceableObjects.push_back(new InfinitePlane(Vector3(0, 0, 0), Vector3(0, 1, 0), new LambertMaterial(Vector3(0.1f, 0.2f, 0.5f))));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -91,8 +91,7 @@ void Raytracer::Update(float _deltaTime)
 //----------------------------------------------------------------------------------------------------------------------------------------
 void Raytracer::TraceScene()
 {
-	Vector3 rayOrigin;
-	Vector3 rayDirection;
+	Ray ray;
 
 	for (int x = 0; x < imageWidth; ++x)
 	{
@@ -104,10 +103,10 @@ void Raytracer::TraceScene()
 				Vector3::Type tx = rcpDimension.x * (Helper::Random() + x);
 				Vector3::Type ty = 1.0f - rcpDimension.y * (Helper::Random() + currLine);
 
-				camera.CalculateRay(tx, ty, rayOrigin, rayDirection);
+				camera.CalculateRay(tx, ty, ray);
 
 				Vector3 color;
-				EvaluateColor(color, rayOrigin, rayDirection, camera.GetNearPlane(), FLT_MAX, maxRaycastDepth);
+				EvaluateColor(color, ray, camera.GetNearPlane(), FLT_MAX, maxRaycastDepth);
 				finalColor += color;
 			}
 
@@ -118,17 +117,17 @@ void Raytracer::TraceScene()
 			Vector3::Type tx = rcpDimension.x * x;
 			Vector3::Type ty = 1.0f - rcpDimension.y * currLine;
 
-			camera.CalculateRay(tx, ty, rayOrigin, rayDirection);
+			camera.CalculateRay(tx, ty, ray);
 
 			HitInfo hitInfo;
-			RaycastObjects(hitInfo, rayOrigin, rayDirection, camera.GetNearPlane(), FLT_MAX);
+			RaycastObjects(hitInfo, ray, camera.GetNearPlane(), FLT_MAX);
 			if (hitInfo.isHit)
 			{
 				finalColor = hitInfo.surfaceNormal;
 			}
 			else
 			{
-				finalColor = rayDirection;
+				finalColor = ray.direction;
 			}
 			finalColor *= 0.5f;
 			finalColor += Vector3(0.5f, 0.5f, 0.5f);
@@ -140,27 +139,30 @@ void Raytracer::TraceScene()
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::EvaluateColor(Vector3& _color, const Vector3& _rayOrigin, const Vector3& _rayDirection, Vector3::Type _tMin, Vector3::Type _tMax, int depth)
+void Raytracer::EvaluateColor(Vector3& _color, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth)
 {
 	if (depth > 0)
 	{
 		HitInfo hitInfo;
-		RaycastObjects(hitInfo, _rayOrigin, _rayDirection, _tMin, _tMax);
+		RaycastObjects(hitInfo, _ray, _tMin, _tMax);
 		if (hitInfo.isHit)
 		{
-			Vector3 target = hitInfo.point + Helper::RandomUnitHemisphere(hitInfo.surfaceNormal);
-
-			Vector3 origin = hitInfo.point;
-			Vector3 direction = target - origin;
-			direction.Normalize();
-
-			Vector3 nextColor;
-			EvaluateColor(nextColor, origin, direction, 0.001, DBL_MAX, depth-1);
-			_color += 0.5f * nextColor;
+			Ray scattered;
+			Vector3 attenuation;
+			if (hitInfo.material->Scatter(_ray, hitInfo, attenuation, scattered))
+			{
+				Vector3 nextColor;
+				EvaluateColor(nextColor, scattered, 0.001, DBL_MAX, depth - 1);
+				_color = attenuation * nextColor;
+			}
+			else
+			{
+				_color = Vector3(0,0,0);
+			}
 		}
 		else
 		{
-			SampleEnviroment(_color, _rayDirection);
+			SampleEnviroment(_color, _ray.direction);
 		}
 	}
 	else
@@ -170,7 +172,7 @@ void Raytracer::EvaluateColor(Vector3& _color, const Vector3& _rayOrigin, const 
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::RaycastObjects(HitInfo& _hitInfo, const Vector3& _rayOrigin, const Vector3& _rayDirection, Vector3::Type _tMin, Vector3::Type _tMax)
+void Raytracer::RaycastObjects(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax)
 {
 	_hitInfo.isHit = false;
 	_hitInfo.distance = DBL_MAX;
@@ -178,7 +180,7 @@ void Raytracer::RaycastObjects(HitInfo& _hitInfo, const Vector3& _rayOrigin, con
 	HitInfo objHit;
 	for (size_t i=0; i < traceableObjects.size(); ++i)
 	{
-		traceableObjects[i]->Raycast(objHit, _rayOrigin, _rayDirection, _tMin, _tMax);
+		traceableObjects[i]->Raycast(objHit, _ray, _tMin, _tMax);
 		if (objHit.isHit && objHit.distance < _hitInfo.distance)
 		{
 			_hitInfo = objHit;

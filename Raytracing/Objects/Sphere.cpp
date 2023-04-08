@@ -16,15 +16,15 @@ Sphere::~Sphere()
 //		x² + y² + z² = r²
 // =>	|ray.pos + ray.dir * dst|² = r²
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Sphere::Raycast(HitInfo& _hitInfo, const Vector3& _rayOrigin, const Vector3& _rayDirection, Vector3::Type _tMin, Vector3::Type _tMax) const
+void Sphere::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 {
 	_hitInfo.isHit = false;
 
-	Vector3 offsetRayOrigin = _rayOrigin - center;
+	Vector3 offsetRayOrigin = _ray.origin - center;
 
 	// coefficients for quadratic equation
-	Vector3::Type a = _rayDirection.LengthSq();
-	Vector3::Type half_b = offsetRayOrigin.Dot(_rayDirection);
+	Vector3::Type a = _ray.direction.LengthSq();
+	Vector3::Type half_b = offsetRayOrigin.Dot(_ray.direction);
 	Vector3::Type c = offsetRayOrigin.LengthSq() - radius * radius;
 
 	// quadratic discrinant
@@ -43,7 +43,7 @@ void Sphere::Raycast(HitInfo& _hitInfo, const Vector3& _rayOrigin, const Vector3
 			_hitInfo.isHit = true;
 			_hitInfo.distance = distance;
 
-			_hitInfo.point = _rayOrigin + _rayDirection * distance;
+			_hitInfo.point = _ray.origin + _ray.direction * distance;
 			_hitInfo.surfaceNormal = _hitInfo.point - center;
 			_hitInfo.surfaceNormal.Normalize();
 

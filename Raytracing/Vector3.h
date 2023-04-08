@@ -20,29 +20,46 @@ struct Vector3
 	Vector3(Type _x, Type _y, Type _z) : x(_x), y(_y), z(_z) { }
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	inline Vector3& operator+=(const Vector3& _v)	{ x += _v.x; y += _v.y; z += _v.z; return *this; }
-	inline Vector3& operator-=(const Vector3& _v)	{ x -= _v.x; y -= _v.y; z -= _v.z; return *this; }
-	inline Vector3& operator*=(Type _f)				{ x *= _f; y *= _f; z *= _f; return *this; }
-	inline Vector3& operator/=(Type _f)				{ return this->operator*=(1.0 / _f); }
 	inline Vector3 operator-() const				{ return Vector3(-x, -y, -z); }
 
+	inline Vector3& operator+=(const Vector3& _v)	{ x += _v.x; y += _v.y; z += _v.z; return *this; }
+	inline Vector3& operator-=(const Vector3& _v)	{ x -= _v.x; y -= _v.y; z -= _v.z; return *this; }
+	inline Vector3& operator*=(const Vector3& _v)	{ x *= _v.x; y *= _v.y; z *= _v.z; return *this; }
+	inline Vector3& operator*=(Type _f)				{ x *= _f; y *= _f; z *= _f; return *this; }
+	inline Vector3& operator/=(Type _f)				{ return this->operator*=(1.0 / _f); }
+	
 	//------------------------------------------------------------------------------------------------------------------------------------
-	void	Normalize()								{ Type scale = 1.0 / Length(); x *= scale; y *= scale; z *= scale; }
+	inline Vector3 operator+(const Vector3& _v) const	{ return Vector3(*this).operator+=(_v); }
+	inline Vector3 operator-(const Vector3& _v) const	{ return Vector3(*this).operator-=(_v); }
+	inline Vector3 operator*(const Vector3& _v) const	{ return Vector3(*this).operator*=(_v); }
+	inline Vector3 operator*(Vector3::Type _f) const	{ return Vector3(*this).operator*=(_f); }
+	inline Vector3 operator/(Vector3::Type _f) const	{ return Vector3(*this).operator/=(_f); }
+
+	friend Vector3 operator*(const Vector3::Type _f, const Vector3& _v) { return _v * _f; }
+
+	//------------------------------------------------------------------------------------------------------------------------------------
+	void	Normalize()								{ Type scale = Length(); if (scale > 0) this->operator*=(1.0/scale); }
 	Type	LengthSq() const						{ return x*x + y*y + z*z; }
 	Type	Length() const							{ return sqrt(LengthSq()); }
+
+	bool	NearZero() const						{ const Type s = 1e-8; return (fabs(x) < s) && (fabs(y) < s) && (fabs(z) < s); }
 
 	Type	Dot(const Vector3& _v) const			{ return x*_v.x + y*_v.y + z*_v.z; }
 	Vector3 Cross(const Vector3& _v) const			{ return Vector3(y*_v.z-z*_v.y, z*_v.x-x*_v.z, x*_v.y-y*_v.x); }
 	Vector3	Lerp(const Vector3& _a, const Vector3& _b, Vector3::Type _t) { Type u = 1.0 - _t; x = u*_a.x + _t*_b.x; y = u*_a.y + _t*_b.y; z = u*_a.z + _t*_b.z;	return *this; }
+	
+	static Vector3 Reflect(const Vector3& _v, const Vector3& _n) { return _v - 2.0 * _v.Dot(_n) * _n; }
 };
 
 //------------------------------------------------------------------------------------------------------------------------------------
-inline Vector3 operator+(const Vector3& _a, const Vector3& _b)	{ return Vector3(_a).operator+=(_b); }
-inline Vector3 operator-(const Vector3& _a, const Vector3& _b)	{ return Vector3(_a).operator-=(_b); }
-inline Vector3 operator*(const Vector3& _a, Vector3::Type _f)	{ return Vector3(_a).operator*=(_f); }
-inline Vector3 operator/(const Vector3& _a, Vector3::Type _f)	{ return Vector3(_a).operator/=(_f); }
+struct Ray
+{
+	Vector3 origin;
+	Vector3 direction;
 
-inline Vector3 operator*(const float _f, const Vector3& _v) { return Vector3(_v).operator*=(_f); }
+	Ray() { }
+	Ray(const Vector3& _origin, const Vector3& _direction) : origin(_origin), direction(_direction) { }
+};
 
 //------------------------------------------------------------------------------------------------------------------------------------
 struct Helper

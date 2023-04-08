@@ -13,7 +13,7 @@ public:
 	void				SetFOV(Vector3::Type _fieldOfView)		{ fieldOfView = _fieldOfView; UpdateInternals(); }
 	void				SetAspect(Vector3::Type _aspect)		{ aspect = _aspect; UpdateInternals(); }
 
-	void				CalculateRay(Vector3::Type _tx, Vector3::Type _ty, Vector3& _origin, Vector3& _direction) const;
+	void				CalculateRay(Vector3::Type _tx, Vector3::Type _ty, Ray& _ray) const;
 
 	Vector3::Type		GetNearPlane() const { return nearPlane; }
 

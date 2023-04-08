@@ -44,7 +44,7 @@ private:
 	void		SetPixelDirect(int _x, int _y, const Vector3& _color);
 	
 	void		TraceScene();
-	void		EvaluateColor(Vector3& _color, const Vector3& _rayOrigin, const Vector3& _rayDirection, Vector3::Type _tMin, Vector3::Type _tMax, int depth);
-	void		RaycastObjects(HitInfo& _hitInfo, const Vector3& _rayOrigin, const Vector3& _rayDirection, Vector3::Type _tMin, Vector3::Type _tMax);
+	void		EvaluateColor(Vector3& _color, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth);
+	void		RaycastObjects(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax);
 	void		SampleEnviroment(Vector3& _color, const Vector3& _rayDirection);
 };

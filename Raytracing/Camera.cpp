@@ -30,20 +30,20 @@ void Camera::LookAt(const Vector3& _worldPosition)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Camera::CalculateRay(Vector3::Type _tx, Vector3::Type _ty, Vector3& _origin, Vector3& _direction) const
+void Camera::CalculateRay(Vector3::Type _tx, Vector3::Type _ty, Ray& _ray) const
 {
 	_tx -= 0.5;
 	_ty -= 0.5;
 
 	Vector3 local = Vector3(nearPlaneWidth * _tx, nearPlaneHeight * _ty, nearPlane);
 	
-	_origin = position;
-	_origin += right * local.x;
-	_origin += up * local.y;
-	_origin += direction * local.z;
+	_ray.origin = position;
+	_ray.origin += right * local.x;
+	_ray.origin += up * local.y;
+	_ray.origin += direction * local.z;
 
-	_direction = _origin - position;
-	_direction.Normalize();
+	_ray.direction = _ray.origin - position;
+	_ray.direction.Normalize();
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
