@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Win32">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>
+      </Extensions>
+    </Filter>
+    <Filter Include="Raytracing">
+      <UniqueIdentifier>{1d17324f-b135-4be5-a51e-b027559dd990}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Raytracing\Objects">
+      <UniqueIdentifier>{ce9cfe3a-4dc6-48c7-85b6-f531115abb96}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Win32\framework.h">
+      <Filter>Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\resource.h">
+      <Filter>Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\targetver.h">
+      <Filter>Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Win32Main.h">
+      <Filter>Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Raytracing\Camera.h">
+      <Filter>Raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="Raytracing\Raytracer.h">
+      <Filter>Raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="Raytracing\Objects\TraceableObject.h">
+      <Filter>Raytracing\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Raytracing\Objects\Sphere.h">
+      <Filter>Raytracing\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Raytracing\Objects\InfinitePlane.h">
+      <Filter>Raytracing\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleMath.inl" />
+    <ClInclude Include="SimpleMath.h" />
+    <ClInclude Include="FastMath.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Win32\Raytracer.rc">
+      <Filter>Win32</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Win32\Raytracer.ico">
+      <Filter>Win32</Filter>
+    </Image>
+    <Image Include="Win32\small.ico">
+      <Filter>Win32</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Win32\Win32Main.cpp">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Raytracing\Camera.cpp">
+      <Filter>Raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="Raytracing\Raytracer.cpp">
+      <Filter>Raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="Raytracing\Objects\Sphere.cpp">
+      <Filter>Raytracing\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Raytracing\Objects\InfinitePlane.cpp">
+      <Filter>Raytracing\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Raytracing\Objects\TraceableObject.cpp">
+      <Filter>Raytracing\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleMath.cpp" />
+    <ClCompile Include="FastMath.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>
