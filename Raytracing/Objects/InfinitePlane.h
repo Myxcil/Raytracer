@@ -10,7 +10,7 @@ public:
 	~InfinitePlane();
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	void			Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const override;
+	bool			Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const override;
 
 protected:
 	//------------------------------------------------------------------------------------------------------------------------------------

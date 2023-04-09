@@ -6,7 +6,7 @@
 #include <thread>
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-class TraceableObject;
+class World;
 struct HitInfo;
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -38,11 +38,7 @@ private:
 	int				maxRaycastDepth;
 	Color			backGround;
 	bool			useEnviromentBackground;
-
-	//------------------------------------------------------------------------------------------------------------------------------------
-	typedef std::vector<TraceableObject*> TraceableObjects;
-	TraceableObjects traceableObjects;
-	bool			useAABB;
+	World*			world;
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	typedef std::vector<std::thread*> RenderThreads;
@@ -58,14 +54,12 @@ private:
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	void			InitScene();
 	void			CleanupThreads();
 	void			SetPixel(int _x, int _y, const Color& _color);
 	
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			TraceScene(int _threadIndex, int _startLine, int _numLines);
 	Color			EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth);
-	void			RaycastObjects(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax);
 	Color			SampleEnviroment(const Vector3& _rayDirection);
 
 	//------------------------------------------------------------------------------------------------------------------------------------

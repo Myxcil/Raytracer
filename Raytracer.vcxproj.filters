@@ -63,6 +63,12 @@
     <ClInclude Include="Raytracing\Textures\Texture.h">
       <Filter>Raytracing\Textures</Filter>
     </ClInclude>
+    <ClInclude Include="Raytracing\World.h">
+      <Filter>Raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="Raytracing\SceneNode.h">
+      <Filter>Raytracing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Raytracer.rc">
@@ -114,6 +120,12 @@
     </ClCompile>
     <ClCompile Include="Raytracing\Textures\Texture.cpp">
       <Filter>Raytracing\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="Raytracing\World.cpp">
+      <Filter>Raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="Raytracing\SceneNode.cpp">
+      <Filter>Raytracing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -10,7 +10,7 @@ public:
 	Box(const Vector3& _center, const Vector3& _size, Material* _material);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	void			Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const override;
+	bool			Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const override;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------

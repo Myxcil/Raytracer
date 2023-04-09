@@ -10,7 +10,7 @@ Box::Box(const Vector3& _center, const Vector3& _size, Material* _material) :
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Box::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
+bool Box::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 {
-
+	return false;
 }

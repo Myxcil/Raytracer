@@ -37,7 +37,7 @@ Quad::Quad(const Vector3& _center, const Vector3& _normal, const Vector3& _size,
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Quad::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
+bool Quad::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 {
 	InfinitePlane::Raycast(_hitInfo, _ray, _tMin, _tMax);
 	if (_hitInfo.isHit)
@@ -48,6 +48,9 @@ void Quad::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vect
 		_hitInfo.isHit = (tu >= 0 && tu <= 1) && (tv >= 0 && tv <= 1);
 
 		_hitInfo.uvw = Vector3(tu,tv,0);
+
+		return _hitInfo.isHit;
 	}
+	return false;
 }
 	

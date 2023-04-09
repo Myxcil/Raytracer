@@ -5,8 +5,20 @@ class AABB
 {
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
+	enum ClipResult
+	{
+		Inside,
+		Outside,
+		Intersect,
+	};
+
+public:
+	//------------------------------------------------------------------------------------------------------------------------------------
 	AABB() : vMin(0,0,0),vMax(0,0,0),isValid(false) { }
 	AABB(const Vector3& _min, const Vector3& _max) : vMin(_min), vMax(_max),isValid(true) { }
+
+	//------------------------------------------------------------------------------------------------------------------------------------
+	bool			IsValid() const { return isValid; }
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			Merge(const Vector3& _p);
@@ -14,8 +26,12 @@ public:
 	bool			Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const;
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	Vector3			Min() const { return vMin; }
-	Vector3			Max() const { return vMax; }
+	ClipResult		Clip(const AABB& _other) const;
+
+	//------------------------------------------------------------------------------------------------------------------------------------
+	const Vector3&	Min() const { return vMin; }
+	const Vector3&	Max() const { return vMax; }
+	Vector3			Size() const { return vMax - vMin; }
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	static AABB		Merge(const AABB& _a, const AABB& _b)	{ AABB merged(_a); merged.Merge(_b); return merged; }

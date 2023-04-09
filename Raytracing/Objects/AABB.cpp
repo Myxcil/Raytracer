@@ -47,3 +47,32 @@ bool AABB::Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 	}
 	return true;
 }
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+AABB::ClipResult AABB::Clip(const AABB& _other) const
+{
+	bool	bAllInside = true;
+	bool	bAllOutside = true;
+
+	for (int i = 0; i < 3; ++i)
+	{
+		if (vMin.v[i] >= _other.vMin.v[i] && vMax.v[i] <= _other.vMax.v[i])
+		{
+			bAllOutside = false;
+		}
+		else
+		{
+			bAllInside = false;
+		}
+	}
+	
+	if (bAllOutside)
+	{
+		return ClipResult::Outside;
+	}
+	else if (bAllInside)
+	{
+		return ClipResult::Inside;
+	}
+	return ClipResult::Intersect;
+}

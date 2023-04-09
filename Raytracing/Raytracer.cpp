@@ -1,13 +1,8 @@
 #include "pch.h"
 #include "Raytracer.h"
-
-#include "Material.h"
+#include "World.h"
 #include "Objects/TraceableObject.h"
-#include "Objects/Sphere.h"
-#include "Objects/InfinitePlane.h"
-#include "Objects/Quad.h"
-
-#include "Textures/Texture.h"
+#include "Material.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 Raytracer::Raytracer() :
@@ -16,11 +11,10 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(100),
-	maxRaycastDepth(8),
+	samplesPerPixel(1000),
+	maxRaycastDepth(16),
 	backGround(0,0,0),
 	useEnviromentBackground(false),
-	useAABB(true),
 	isRunning(false),
 	isFinished(false)
 {
@@ -28,19 +22,14 @@ Raytracer::Raytracer() :
 	QueryPerformanceFrequency(&freq);
 	rcpTimerFreq = 1.0 / freq.QuadPart;
 
-	InitScene();
+	world = new World();
+	world->Init(camera, useEnviromentBackground);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 Raytracer::~Raytracer()
 {
 	CleanupThreads();
-
-	for (size_t i = 0; i < traceableObjects.size(); ++i)
-	{
-		delete traceableObjects[i];
-	}
-	traceableObjects.clear();
 
 	if (imageBuffer != nullptr)
 	{
@@ -63,73 +52,6 @@ void Raytracer::CleanupThreads()
 	}
 	renderThreads.clear();
 	Helper::Log(_T("Cleaned render threads\n"));
-}
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::InitScene()
-{
-	//InitCornellBox();
-	InitTestscene();
-}
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::InitCornellBox()
-{
-	useEnviromentBackground = false;
-
-	camera.SetPosition(Vector3(0, 0.0, -3));
-
-	// cornell box
-	Material* matRed = new LambertMaterial(&ConstantColor::RED);
-	Material* matGreen = new LambertMaterial(&ConstantColor::GREEN);
-	Material* matWhite = new LambertMaterial(&ConstantColor::WHITE);
-
-	// actual box
-	traceableObjects.push_back(new Quad(Vector3(0, -1, 0), Vector3(0, 1, 0), Vector3(1, 1, 0), matWhite));	// bottom
-	traceableObjects.push_back(new Quad(Vector3(0, 0, 1), Vector3(0, 0, -1), Vector3(1, 1, 0), matWhite));	// back
-	traceableObjects.push_back(new Quad(Vector3(0, 1, 0), Vector3(0, -1, 0), Vector3(1, 1, 0), matWhite));	// top
-	traceableObjects.push_back(new Quad(Vector3(0, 0, -1), Vector3(0, 0, 1), Vector3(1, 1, 0), matWhite));	// front
-
-	traceableObjects.push_back(new Quad(Vector3(-1, 0, 0), Vector3(1, 0, 0), Vector3(1, 1, 0), matRed));	// left
-	traceableObjects.push_back(new Quad(Vector3(1, 0, 0), Vector3(-1, 0, 0), Vector3(1, 1, 0), matGreen));	// right
-
-	// light
-	Material* lightWhite = new DiffuseLight(Color(4,4,4));
-	traceableObjects.push_back(new Quad(Vector3(0,0.99,0), Vector3(0,-1,0), Vector3(0.25,0.25,0), lightWhite));	
-
-	// test objects
-	Material* matGlass = new DielectricMaterial(1.5f);
-	traceableObjects.push_back(new Sphere(Vector3(0,-0.75,-0.5), 0.25, matGlass));
-
-	Material* matBlue = new LambertMaterial(&ConstantColor::BLUE);
-	traceableObjects.push_back(new Sphere(Vector3(-0.5,-0.75,0.25), 0.25, matBlue));
-
-	Material* matMetal = new MetalMaterial(&ConstantColor::WHITE, 0);
-	traceableObjects.push_back(new Sphere(Vector3(0.5, -0.75, 0.25), 0.25, matMetal));
-}
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::InitTestscene()
-{
-	useEnviromentBackground = false;
-
-	camera.SetPosition(Vector3(5,4,-5));
-	camera.LookAt(Vector3(0,1,0));
-
-	Material* matGrey = new LambertMaterial(&ConstantColor::GREY);
-	traceableObjects.push_back(new InfinitePlane(Vector3(0,0,0), Vector3(0,1,0), true, matGrey));
-
-	Texture* checkerboard = new CheckerTexture(&ConstantColor::BLACK, &ConstantColor::WHITE, Vector3(4,4,4));
-	Material* matCheckerboard = new LambertMaterial(checkerboard);
-
-	Material* matGreen = new LambertMaterial(&ConstantColor::GREEN);
-	Material* matBlue = new LambertMaterial(&ConstantColor::BLUE);
-	traceableObjects.push_back(new Sphere(Vector3(0, 1, -1), 1, matCheckerboard));
-	traceableObjects.push_back(new Sphere(Vector3(-2,1,1), 1, matGreen));
-	traceableObjects.push_back(new Sphere(Vector3(2,1,1), 1, matBlue));
-
-	Material* lightWhite = new DiffuseLight(Color(4,4,4));
-	traceableObjects.push_back(new Sphere(Vector3(0, 5, 0), 1, lightWhite));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -271,7 +193,7 @@ Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Ty
 		return Color(0,0,0);
 
 	HitInfo hitInfo;
-	RaycastObjects(hitInfo, _ray, _tMin, _tMax);
+	world->Raycast(hitInfo, _ray, _tMin, _tMax);
 	if (!hitInfo.isHit)
 	{
 		return SampleEnviroment(_ray.direction);
@@ -285,26 +207,6 @@ Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Ty
 		return emitted;
 
 	return emitted + attenuation * EvaluateColor(scattered, 0.001, DBL_MAX, depth - 1);;
-}
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::RaycastObjects(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax)
-{
-	_hitInfo.isHit = false;
-	_hitInfo.distance = DBL_MAX;
-
-	HitInfo objHit;
-	for (size_t i=0; i < traceableObjects.size(); ++i)
-	{
-		if (!useAABB || traceableObjects[i]->Hit(_ray, _tMin, _tMax))
-		{
-			traceableObjects[i]->Raycast(objHit, _ray, _tMin, _tMax);
-			if (objHit.isHit && objHit.distance < _hitInfo.distance)
-			{
-				_hitInfo = objHit;
-			}
-		}
-	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
