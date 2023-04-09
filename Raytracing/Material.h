@@ -83,7 +83,7 @@ class DiffuseLight : public Material
 {
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	DiffuseLight(const Color& _emit);
+	DiffuseLight(const Color& _emit, bool _visible = true);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	bool	Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const override { return false; }
@@ -92,4 +92,5 @@ public:
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	Color	emit;
+	bool	visible;
 };

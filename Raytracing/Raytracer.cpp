@@ -73,6 +73,10 @@ void Raytracer::InitScene()
 //----------------------------------------------------------------------------------------------------------------------------------------
 void Raytracer::InitCornellBox()
 {
+	useEnviromentBackground = false;
+
+	camera.SetPosition(Vector3(0, 0.0, -3));
+
 	// cornell box
 	Material* matRed = new LambertMaterial(Color(1,0,0));
 	Material* matGreen = new LambertMaterial(Color(0,1,0));
@@ -110,16 +114,18 @@ void Raytracer::InitTestscene()
 	camera.SetPosition(Vector3(5,4,-5));
 	camera.LookAt(Vector3(0,1,0));
 
+	Material* matGrey = new LambertMaterial(Color(0.5, 0.5, 0.5));
+	traceableObjects.push_back(new InfinitePlane(Vector3(0,0,0), Vector3(0,1,0), true, matGrey));
+
 	Material* matRed = new LambertMaterial(Color(1, 0, 0));
 	Material* matGreen = new LambertMaterial(Color(0, 1, 0));
 	Material* matBlue = new LambertMaterial(Color(0, 0, 1));
-	Material* matGrey = new LambertMaterial(Color(0.5, 0.5, 0.5));
-
-	traceableObjects.push_back(new InfinitePlane(Vector3(0,0,0), Vector3(0,1,0), true, matGrey));
-
-	traceableObjects.push_back(new Sphere(Vector3(0,1,-1), 1, matRed));
+	traceableObjects.push_back(new Sphere(Vector3(0, 1, -1), 1, matRed));
 	traceableObjects.push_back(new Sphere(Vector3(-2,1,1), 1, matGreen));
 	traceableObjects.push_back(new Sphere(Vector3(2,1,1), 1, matBlue));
+
+	Material* lightWhite = new DiffuseLight(Color(4, 4, 4));
+	traceableObjects.push_back(new Sphere(Vector3(0, 5, 0), 1, lightWhite));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -234,9 +240,7 @@ void Raytracer::TraceScene(int _threadIndex, int _startLine, int _numLines)
 
 				camera.CalculateRay(tx, ty, ray);
 
-				Color bg = useEnviromentBackground ? SampleEnviroment(ray.direction) : backGround;
-
-				finalColor += EvaluateColor(ray, bg, camera.GetNearPlane(), FLT_MAX, maxRaycastDepth);
+				finalColor += EvaluateColor(ray, camera.GetNearPlane(), FLT_MAX, maxRaycastDepth);
 			}
 
 			SetPixel(x, y, finalColor);
@@ -257,7 +261,7 @@ void Raytracer::TraceScene(int _threadIndex, int _startLine, int _numLines)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-Color Raytracer::EvaluateColor(const Ray& _ray, const Color& _backGround, Vector3::Type _tMin, Vector3::Type _tMax, int depth)
+Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth)
 {
 	if (depth <= 0)
 		return Color(0,0,0);
@@ -265,7 +269,9 @@ Color Raytracer::EvaluateColor(const Ray& _ray, const Color& _backGround, Vector
 	HitInfo hitInfo;
 	RaycastObjects(hitInfo, _ray, _tMin, _tMax);
 	if (!hitInfo.isHit)
-		return _backGround;
+	{
+		return SampleEnviroment(_ray.direction);
+	}
 
 	Ray scattered;
 	Color attenuation;
@@ -274,7 +280,7 @@ Color Raytracer::EvaluateColor(const Ray& _ray, const Color& _backGround, Vector
 	if (!hitInfo.material->Scatter(_ray, hitInfo, attenuation, scattered))
 		return emitted;
 
-	return emitted + attenuation * EvaluateColor(scattered, _backGround, 0.001, DBL_MAX, depth - 1);;
+	return emitted + attenuation * EvaluateColor(scattered, 0.001, DBL_MAX, depth - 1);;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -304,8 +310,15 @@ const Color colorB = Color(0.5, 0.7, 1.0);
 //----------------------------------------------------------------------------------------------------------------------------------------
 Color Raytracer::SampleEnviroment(const Vector3& _rayDirection)
 {
-	Vector3::Type t = 0.5 + 0.5 * _rayDirection.y;
-	return Color::Lerp(colorA, colorB, t);
+	if (useEnviromentBackground)
+	{
+		Vector3::Type t = 0.5 + 0.5 * _rayDirection.y;
+		return Color::Lerp(colorA, colorB, t);
+	}
+	else
+	{
+		return backGround;
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

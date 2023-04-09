@@ -46,6 +46,7 @@ struct Vector3
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void				Normalize()								{ Type scale = Length(); if (scale > 0) this->operator*=(1.0/scale); }
+	void				Saturate()								{ x = fmax(0,fmin(1,x)); y = fmax(0,fmin(1,y)); z = fmax(0,fmin(1,z)); }
 	Type				LengthSq() const						{ return x*x + y*y + z*z; }
 	Type				Length() const							{ return sqrt(LengthSq()); }
 

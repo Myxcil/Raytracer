@@ -40,8 +40,11 @@ Vector3 Vector3::Refract(const Vector3& _d, const Vector3& _n, Vector3::Type _et
 //----------------------------------------------------------------------------------------------------------------------------------------
 UINT32 Vector3::ToRGB(Vector3::Type _scale) const
 {
-	unsigned char r = static_cast<unsigned char>(sqrt(x * _scale) * 255.0f);
-	unsigned char g = static_cast<unsigned char>(sqrt(y * _scale) * 255.0f);
-	unsigned char b = static_cast<unsigned char>(sqrt(z * _scale) * 255.0f);
+	Vector3 scaled(sqrt(x*_scale),sqrt(y*_scale),sqrt(z*_scale));
+	scaled.Saturate();
+
+	unsigned char r = static_cast<unsigned char>(scaled.x * 255.0f);
+	unsigned char g = static_cast<unsigned char>(scaled.y * 255.0f);
+	unsigned char b = static_cast<unsigned char>(scaled.z * 255.0f);
 	return TO_RGB(r,g,b);
 }
