@@ -14,10 +14,13 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(100),
-	maxRaycastDepth(4),
+	samplesPerPixel(50),
+	maxRaycastDepth(8),
 	backGround(0,0,0),
-	isRunning(false)
+	useEnviromentBackground(false),
+	useAABB(true),
+	isRunning(false),
+	isFinished(false)
 {
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
@@ -63,7 +66,8 @@ void Raytracer::CleanupThreads()
 //----------------------------------------------------------------------------------------------------------------------------------------
 void Raytracer::InitScene()
 {
-	InitCornellBox();
+	//InitCornellBox();
+	InitTestscene();
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -89,7 +93,33 @@ void Raytracer::InitCornellBox()
 
 	// test objects
 	Material* matGlass = new DielectricMaterial(1.5f);
-	traceableObjects.push_back(new Sphere(Vector3(0,-0.75,0), 0.25, matGlass));
+	traceableObjects.push_back(new Sphere(Vector3(0,-0.75,-0.5), 0.25, matGlass));
+
+	Material* matBlue = new LambertMaterial(Color(0,0,1));
+	traceableObjects.push_back(new Sphere(Vector3(-0.5,-0.75,0.25), 0.25, matBlue));
+
+	Material* matMetal = new MetalMaterial(Color(1,1,1), 0);
+	traceableObjects.push_back(new Sphere(Vector3(0.5, -0.75, 0.25), 0.25, matMetal));
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+void Raytracer::InitTestscene()
+{
+	useEnviromentBackground = true;
+
+	camera.SetPosition(Vector3(5,4,-5));
+	camera.LookAt(Vector3(0,1,0));
+
+	Material* matRed = new LambertMaterial(Color(1, 0, 0));
+	Material* matGreen = new LambertMaterial(Color(0, 1, 0));
+	Material* matBlue = new LambertMaterial(Color(0, 0, 1));
+	Material* matGrey = new LambertMaterial(Color(0.5, 0.5, 0.5));
+
+	traceableObjects.push_back(new InfinitePlane(Vector3(0,0,0), Vector3(0,1,0), true, matGrey));
+
+	traceableObjects.push_back(new Sphere(Vector3(0,1,-1), 1, matRed));
+	traceableObjects.push_back(new Sphere(Vector3(-2,1,1), 1, matGreen));
+	traceableObjects.push_back(new Sphere(Vector3(2,1,1), 1, matBlue));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -128,6 +158,7 @@ void Raytracer::Run()
 	QueryPerformanceCounter(&timeStamp);
 
 	isRunning = true;
+	isFinished = false;
 
 	unsigned int numCores = std::thread::hardware_concurrency();
 	unsigned int numThreads = max(1,numCores - 2);
@@ -172,10 +203,13 @@ bool Raytracer::IsRunning()
 		{
 			LARGE_INTEGER time;
 			QueryPerformanceCounter(&time);
+			
 			double duration = rcpTimerFreq * (time.QuadPart - timeStamp.QuadPart);
 			Helper::Log(_T("Rendering time total: %f\n"), duration);
 	
 			CleanupThreads();
+
+			isFinished = true;
 		}
 	}
 	return isRunning;
@@ -200,7 +234,9 @@ void Raytracer::TraceScene(int _threadIndex, int _startLine, int _numLines)
 
 				camera.CalculateRay(tx, ty, ray);
 
-				finalColor += EvaluateColor(ray, backGround, camera.GetNearPlane(), FLT_MAX, maxRaycastDepth);
+				Color bg = useEnviromentBackground ? SampleEnviroment(ray.direction) : backGround;
+
+				finalColor += EvaluateColor(ray, bg, camera.GetNearPlane(), FLT_MAX, maxRaycastDepth);
 			}
 
 			SetPixel(x, y, finalColor);
@@ -250,10 +286,13 @@ void Raytracer::RaycastObjects(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type
 	HitInfo objHit;
 	for (size_t i=0; i < traceableObjects.size(); ++i)
 	{
-		traceableObjects[i]->Raycast(objHit, _ray, _tMin, _tMax);
-		if (objHit.isHit && objHit.distance < _hitInfo.distance)
+		if (!useAABB || traceableObjects[i]->Hit(_ray, _tMin, _tMax))
 		{
-			_hitInfo = objHit;
+			traceableObjects[i]->Raycast(objHit, _ray, _tMin, _tMax);
+			if (objHit.isHit && objHit.distance < _hitInfo.distance)
+			{
+				_hitInfo = objHit;
+			}
 		}
 	}
 }

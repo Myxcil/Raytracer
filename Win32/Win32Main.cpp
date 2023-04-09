@@ -46,14 +46,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
-	float rcpFreq = 1.0f / freq.QuadPart;
+	double rcpFreq = 1.0 / freq.QuadPart;
 
-    LARGE_INTEGER curr,prev;
-    QueryPerformanceCounter(&prev);
+    LARGE_INTEGER start,curr,prev;
+    QueryPerformanceCounter(&start);
+    prev.QuadPart = start.QuadPart;
 
-    float totalTime = 0;
-    float updateFrameTime = 1.0f / 30.0f;
-    float frameTimeAcc = 0;
+    double totalTime = 0;
+    double updateFrameTime = 1.0f / 30.0f;
+    double frameTimeAcc = 0;
 
     raytracer->Run();
 
@@ -67,7 +68,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         }
 
         QueryPerformanceCounter(&curr);
-        float deltaTime = (curr.QuadPart - prev.QuadPart) * rcpFreq;
+        double deltaTime = (curr.QuadPart - prev.QuadPart) * rcpFreq;
         prev.QuadPart = curr.QuadPart;
 
         totalTime += deltaTime;
@@ -78,8 +79,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			frameTimeAcc -= updateFrameTime;
             if (raytracer->IsRunning())
             {
-                InvalidateRect(hWnd, nullptr, TRUE);    
+                InvalidateRect(hWnd, nullptr, TRUE);
             }
+        }
+
+        if (raytracer->PollFinishedFlag())
+        {
+            InvalidateRect(hWnd, nullptr, TRUE);
         }
 
         Sleep(0);
@@ -122,10 +128,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    RECT rect;
    ZeroMemory(&rect,sizeof(rect));
+#ifdef _DEBUG
    rect.right = 640;
    rect.bottom = 360;
-//   rect.right = 1280;
-//   rect.bottom = 720;
+#else
+   rect.right = 1280;
+   rect.bottom = 720;
+#endif
    AdjustWindowRect(&rect, dwStyle, FALSE);
 
    int width = (rect.right - rect.left);

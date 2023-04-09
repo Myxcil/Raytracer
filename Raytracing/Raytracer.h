@@ -22,6 +22,7 @@ public:
 	void			Run();
 	bool			IsRunning();
 	const void*		GetResult() const				{ return imageBuffer; }
+	bool			PollFinishedFlag()				{ bool flag = isFinished; isFinished = false; return flag; }
 	
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -36,10 +37,12 @@ private:
 	int				samplesPerPixel;
 	int				maxRaycastDepth;
 	Color			backGround;
+	bool			useEnviromentBackground;
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	typedef std::vector<TraceableObject*> TraceableObjects;
 	TraceableObjects traceableObjects;
+	bool			useAABB;
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	typedef std::vector<std::thread*> RenderThreads;
@@ -47,6 +50,7 @@ private:
 	bool*			renderFinished;
 	std::mutex		mutexRenderThreads;
 	volatile bool	isRunning;
+	bool			isFinished;
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	double			rcpTimerFreq;
@@ -54,15 +58,17 @@ private:
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	void		InitScene();
-	void		SetPixel(int _x, int _y, const Color& _color);
+	void			InitScene();
+	void			CleanupThreads();
+	void			SetPixel(int _x, int _y, const Color& _color);
 	
-	void		TraceScene(int _threadIndex, int _startLine, int _numLines);
-	Color		EvaluateColor(const Ray& _ray, const Color& _backGround, Vector3::Type _tMin, Vector3::Type _tMax, int depth);
-	void		RaycastObjects(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax);
-	Color		SampleEnviroment(const Vector3& _rayDirection);
+	//------------------------------------------------------------------------------------------------------------------------------------
+	void			TraceScene(int _threadIndex, int _startLine, int _numLines);
+	Color			EvaluateColor(const Ray& _ray, const Color& _backGround, Vector3::Type _tMin, Vector3::Type _tMax, int depth);
+	void			RaycastObjects(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax);
+	Color			SampleEnviroment(const Vector3& _rayDirection);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	void		InitCornellBox();
-	void		CleanupThreads();
+	void			InitCornellBox();
+	void			InitTestscene();
 };
