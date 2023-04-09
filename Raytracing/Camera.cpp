@@ -3,16 +3,14 @@
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 Camera::Camera() :
+	position(0,1,-5),
+	direction(0,0,1),
 	nearPlane(1.0),
 	fieldOfView(55.0),
 	aspect(1.0),
 	nearPlaneWidth(1.0),
 	nearPlaneHeight(1.0)
 {
-	position = Vector3(1, 1.5, -4);
-	direction = Vector3(-0.5, -0.12, 1);
-	direction.Normalize();
-
 	UpdateTransform();
 	UpdateInternals();
 }

@@ -42,11 +42,11 @@ Raytracer::~Raytracer()
 //----------------------------------------------------------------------------------------------------------------------------------------
 void Raytracer::InitScene()
 {
-	traceableObjects.push_back(new Sphere(Vector3(0, 1.0, 0), 1.0, new DielectricMaterial(1.5f)));
-	traceableObjects.push_back(new Sphere(Vector3(0, 1.0, 0), -0.9, new DielectricMaterial(1.5f)));
+	traceableObjects.push_back(new Sphere(Vector3(0.5, 1.0, 1), 1.0, new DielectricMaterial(1.5f)));
+	traceableObjects.push_back(new Sphere(Vector3(0.5, 1.0, 1), -0.9, new DielectricMaterial(1.5f)));
 
-	traceableObjects.push_back(new Sphere(Vector3(1.0, 0.5, -1.5f), 0.25, new LambertMaterial(Color(0.8, 0.1, 0.1f))));
-	traceableObjects.push_back(new Sphere(Vector3(-5.5, 0.0, 0.5f), 3.0, new MetalMaterial(Color(0.2, 0.8, 0.3f), 0.01f)));
+	traceableObjects.push_back(new Sphere(Vector3(2.0, 0.5, -1.5f), 0.5, new LambertMaterial(Color(0.8, 0.1, 0.1f))));
+	traceableObjects.push_back(new Sphere(Vector3(-4.5, 0.0, 0.5f), 3.0, new MetalMaterial(Color(0.2, 0.8, 0.3f), 0.1f)));
 
 	traceableObjects.push_back(new InfinitePlane(Vector3(0, 0, 0), Vector3(0, 1, 0), new LambertMaterial(Color(0.1, 0.2, 0.5f))));
 }
