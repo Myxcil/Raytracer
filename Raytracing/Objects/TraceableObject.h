@@ -11,6 +11,7 @@ struct HitInfo
 	Vector3::Type			distance;
 	Vector3					point;
 	Vector3					surfaceNormal;
+	Vector3					uvw;
 	bool					frontFace;
 	const Material*			material;
 	const TraceableObject*	object;
@@ -21,6 +22,7 @@ struct HitInfo
 		distance(DBL_MAX),
 		point(0,0,0),
 		surfaceNormal(0,1,0),
+		uvw(0,0,0),
 		frontFace(false),
 		material(nullptr),
 		object(nullptr)

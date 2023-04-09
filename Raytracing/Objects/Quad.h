@@ -1,20 +1,19 @@
 #pragma once
-#include "TraceableObject.h"
+
+#include "InfinitePlane.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-class InfinitePlane : public TraceableObject
+class Quad : public InfinitePlane
 {
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	InfinitePlane(const Vector3& _center, const Vector3& _normal, bool _oneSided, Material* _material);
-	~InfinitePlane();
+	Quad(const Vector3& _center, const Vector3& _normal, const Vector3& _size, Material* _material);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const override;
 
-protected:
+private:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	bool			oneSided;
-	Vector3			normal;
-	Vector3::Type	d;
+	Vector3			size;
+	Vector3			u,v;
 };

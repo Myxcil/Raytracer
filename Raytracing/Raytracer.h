@@ -2,6 +2,7 @@
 
 #include "Camera.h"
 #include <vector>
+#include <thread>
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 class TraceableObject;
@@ -17,7 +18,8 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void		Resize(int _width, int _height);
-	void		Update(float _deltaTime);
+	void		Run();
+	bool		IsRunning();
 	const void*	GetResult() const				{ return imageBuffer; }
 	
 private:
@@ -25,7 +27,6 @@ private:
 	void*		imageBuffer;
 	int			imageWidth;
 	int			imageHeight;
-	int			linesPerUpdate;
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	Camera		camera;
@@ -33,18 +34,25 @@ private:
 	Vector3		rcpDimension;
 	int			samplesPerPixel;
 	int			maxRaycastDepth;
+	Color		backGround;
 
 	typedef std::vector<TraceableObject*> TraceableObjects;
 	TraceableObjects traceableObjects;
+
+	volatile bool isRunning;
+	typedef std::vector<std::thread*> RenderThreads;
+	RenderThreads renderThreads;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void		InitScene();
 	void		SetPixel(int _x, int _y, const Color& _color);
-	void		SetPixelDirect(int _x, int _y, const Color& _color);
 	
-	void		TraceScene(int _line);
-	void		EvaluateColor(Color& _color, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth);
+	void		TraceScene(int _startLine, int _numLines);
+	Color		EvaluateColor(const Ray& _ray, const Color& _backGround, Vector3::Type _tMin, Vector3::Type _tMax, int depth);
 	void		RaycastObjects(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax);
-	void		SampleEnviroment(Color& _color, const Vector3& _rayDirection);
+	Color		SampleEnviroment(const Vector3& _rayDirection);
+
+	//------------------------------------------------------------------------------------------------------------------------------------
+	void		InitCornellBox();
 };

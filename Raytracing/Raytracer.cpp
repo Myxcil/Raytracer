@@ -5,6 +5,7 @@
 #include "Objects/TraceableObject.h"
 #include "Objects/Sphere.h"
 #include "Objects/InfinitePlane.h"
+#include "Objects/Quad.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 #define TO_RGB(r,g,b)          ((COLORREF)(((BYTE)(b)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(r))<<16)))
@@ -14,11 +15,12 @@ Raytracer::Raytracer() :
 	imageBuffer(nullptr),
 	imageWidth(0),
 	imageHeight(0),
-	linesPerUpdate(8),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(30),
-	maxRaycastDepth(8)
+	samplesPerPixel(256),
+	maxRaycastDepth(4),
+	backGround(0,0,0),
+	isRunning(false)
 {
 	InitScene();
 }
@@ -26,6 +28,14 @@ Raytracer::Raytracer() :
 //----------------------------------------------------------------------------------------------------------------------------------------
 Raytracer::~Raytracer()
 {
+	isRunning = false;
+	for (size_t i = 0; i < renderThreads.size(); ++i)
+	{
+		renderThreads[i]->join();
+		delete renderThreads[i];
+	}
+	renderThreads.clear();
+
 	for (size_t i = 0; i < traceableObjects.size(); ++i)
 	{
 		delete traceableObjects[i];
@@ -42,13 +52,28 @@ Raytracer::~Raytracer()
 //----------------------------------------------------------------------------------------------------------------------------------------
 void Raytracer::InitScene()
 {
-	traceableObjects.push_back(new Sphere(Vector3(0.5, 1.0, 1), 1.0, new DielectricMaterial(1.5f)));
-	traceableObjects.push_back(new Sphere(Vector3(0.5, 1.0, 1), -0.9, new DielectricMaterial(1.5f)));
+	InitCornellBox();
+}
 
-	traceableObjects.push_back(new Sphere(Vector3(2.0, 0.5, -1.5f), 0.5, new LambertMaterial(Color(0.8, 0.1, 0.1f))));
-	traceableObjects.push_back(new Sphere(Vector3(-4.5, 0.0, 0.5f), 3.0, new MetalMaterial(Color(0.2, 0.8, 0.3f), 0.1f)));
+//----------------------------------------------------------------------------------------------------------------------------------------
+void Raytracer::InitCornellBox()
+{
+	// cornell box
+	Material* matRed = new LambertMaterial(Color(1,0,0));
+	Material* matGreen = new LambertMaterial(Color(0,1,0));
+	Material* matWhite = new LambertMaterial(Color(1,1,1));
 
-	traceableObjects.push_back(new InfinitePlane(Vector3(0, 0, 0), Vector3(0, 1, 0), new LambertMaterial(Color(0.1, 0.2, 0.5f))));
+	// actual box
+	traceableObjects.push_back(new Quad(Vector3(0, -1, 0), Vector3(0, 1, 0), Vector3(1, 1, 0), matWhite));	// bottom
+	traceableObjects.push_back(new Quad(Vector3(0, 0, 1), Vector3(0, 0, -1), Vector3(1, 1, 0), matWhite));	// back
+	traceableObjects.push_back(new Quad(Vector3(0, 1, 0), Vector3(0, -1, 0), Vector3(1, 1, 0), matWhite));	// top
+	traceableObjects.push_back(new Quad(Vector3(0, 0, -1), Vector3(0, 0, 1), Vector3(1, 1, 0), matWhite));	// front
+
+	traceableObjects.push_back(new Quad(Vector3(-1, 0, 0), Vector3(1, 0, 0), Vector3(1, 1, 0), matRed));	// left
+	traceableObjects.push_back(new Quad(Vector3(1, 0, 0), Vector3(-1, 0, 0), Vector3(1, 1, 0), matGreen));	// right
+
+	Material* lightWhite = new DiffuseLight(Color(4,4,4));
+	traceableObjects.push_back(new Quad(Vector3(0,0.99,0), Vector3(0,-1,0), Vector3(0.25,0.25,0), lightWhite));	// light
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -79,98 +104,83 @@ void Raytracer::Resize(int _width, int _height)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-static const bool showObjectNormals = false;
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::Update(float _deltaTime)
+void Raytracer::Run()
 {
-	for(int i=0; i < linesPerUpdate && currLine < imageHeight; ++i)
+	if (isRunning)
+		return;
+
+	isRunning = true;
+
+	unsigned int numCores = std::thread::hardware_concurrency();
+	unsigned int numThreads = max(1,numCores - 2);
+
+	float linesPerThread = static_cast<float>(imageHeight) / numThreads;
+	int lineCount = static_cast<int>(linesPerThread + 0.5f);
+	int linesRemain = imageHeight;
+	int startLine = 0;
+	for (unsigned int i = 0; i < numThreads; ++i)
 	{
-		TraceScene(currLine);
-		++currLine;
+		int numLines = min(linesRemain, lineCount);
+
+		std::thread* newThread = new std::thread(&Raytracer::TraceScene, this, startLine, numLines);
+		renderThreads.emplace_back(newThread);
+
+		linesRemain -= numLines;
+		startLine += numLines;
 	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::TraceScene(int _line)
+bool Raytracer::IsRunning()
+{
+	return isRunning;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+void Raytracer::TraceScene(int _startLine, int _numLines)
 {
 	Ray ray;
 
-	for (int x = 0; x < imageWidth; ++x)
+	for(int i = 0; i < _numLines && isRunning; ++i)
 	{
-		Color finalColor;
-		if (!showObjectNormals)
+		int y = _startLine + i;
+		for (int x = 0; x < imageWidth && isRunning; ++x)
 		{
+			Color finalColor;
 			for (int i = 0; i < samplesPerPixel; ++i)
 			{
 				Vector3::Type tx = rcpDimension.x * (Helper::Random() + x);
-				Vector3::Type ty = 1.0f - rcpDimension.y * (Helper::Random() + _line);
+				Vector3::Type ty = 1.0f - rcpDimension.y * (Helper::Random() + y);
 
 				camera.CalculateRay(tx, ty, ray);
 
-				Color color;
-				EvaluateColor(color, ray, camera.GetNearPlane(), FLT_MAX, maxRaycastDepth);
-				finalColor += color;
+				finalColor += EvaluateColor(ray, backGround, camera.GetNearPlane(), FLT_MAX, maxRaycastDepth);
 			}
 
-			SetPixel(x, _line, finalColor);
-		}
-		else
-		{
-			Vector3::Type tx = rcpDimension.x * x;
-			Vector3::Type ty = 1.0f - rcpDimension.y * _line;
-
-			camera.CalculateRay(tx, ty, ray);
-
-			HitInfo hitInfo;
-			RaycastObjects(hitInfo, ray, camera.GetNearPlane(), FLT_MAX);
-			if (hitInfo.isHit)
-			{
-				finalColor = hitInfo.surfaceNormal;
-			}
-			else
-			{
-				finalColor = ray.direction;
-			}
-			finalColor *= 0.5f;
-			finalColor += Color(0.5, 0.5, 0.5f);
-
-			SetPixelDirect(x, _line, finalColor);
+			SetPixel(x, y, finalColor);
 		}
 	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::EvaluateColor(Color& _color, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth)
+Color Raytracer::EvaluateColor(const Ray& _ray, const Color& _backGround, Vector3::Type _tMin, Vector3::Type _tMax, int depth)
 {
-	if (depth > 0)
-	{
-		HitInfo hitInfo;
-		RaycastObjects(hitInfo, _ray, _tMin, _tMax);
-		if (hitInfo.isHit)
-		{
-			Ray scattered;
-			Color attenuation;
-			if (hitInfo.material->Scatter(_ray, hitInfo, attenuation, scattered))
-			{
-				Color nextColor;
-				EvaluateColor(nextColor, scattered, 0.001, DBL_MAX, depth - 1);
-				_color = attenuation * nextColor;
-			}
-			else
-			{
-				_color = Color(0,0,0);
-			}
-		}
-		else
-		{
-			SampleEnviroment(_color, _ray.direction);
-		}
-	}
-	else
-	{
-		_color = Color(0,0,0);
-	}
+	if (depth <= 0)
+		return Color(0,0,0);
+
+	HitInfo hitInfo;
+	RaycastObjects(hitInfo, _ray, _tMin, _tMax);
+	if (!hitInfo.isHit)
+		return _backGround;
+
+	Ray scattered;
+	Color attenuation;
+	Color emitted;
+	hitInfo.material->Emitted(hitInfo.uvw, hitInfo.point, emitted);
+	if (!hitInfo.material->Scatter(_ray, hitInfo, attenuation, scattered))
+		return emitted;
+
+	return emitted + attenuation * EvaluateColor(scattered, _backGround, 0.001, DBL_MAX, depth - 1);;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -190,46 +200,15 @@ void Raytracer::RaycastObjects(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type
 	}
 }
 
-/*
-//----------------------------------------------------------------------------------------------------------------------------------------
-const Vector3 colorZenith = { 0.6, 0.6, 1.0 };
-const Vector3 colorHorizon = { 0.8, 0.8, 1.0 };
-const Vector3 colorGround = { 0.5, 0.5, 0.5 };
-
-const Vector3 sunDirection = { -0.38, -0.64, 0.38 };
-const float sunFocus = 4.0;
-const float sunIntensity = 1.0;
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::SampleEnviroment(float* _color, const float* _rayDirection)
-{
-	float skyGradientT = powf(FastMath::SmwoothStep(0.0, 0.4, _rayDirection[1]), 0.35);
-
-	Vector3 skyGradient;
-	Vec3_Lerp(skyGradient, colorHorizon, colorZenith, skyGradientT);
-	
-	float sun = powf(FastMath::Max(0.0, -Vec3_Dot(_rayDirection, sunDirection)), sunFocus) * sunIntensity;
-
-	float groundToSkyT = FastMath::SmwoothStep(0.0, 0.01, _rayDirection[1]);
-	float sunMask = groundToSkyT >= 1;
-	Vec3_Lerp(_color, colorGround, skyGradient, groundToSkyT);
-
-	Vector3 sunColor;
-	Vec3_Set(sunColor,1,1,1);
-	Vec3_Mul(sunColor, sun * sunMask);
-	Vec3_Add(_color, sunColor);
-}
-*/
-
 //----------------------------------------------------------------------------------------------------------------------------------------
 const Color colorA = Vector3(1.0, 1.0, 1.0);
 const Color colorB = Vector3(0.5, 0.7, 1.0);
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::SampleEnviroment(Color& _color, const Vector3& _rayDirection)
+Color Raytracer::SampleEnviroment(const Vector3& _rayDirection)
 {
 	Vector3::Type t = 0.5 + 0.5 * _rayDirection.y;
-	_color = Vector3::Lerp(colorA, colorB, t);
+	return Vector3::Lerp(colorA, colorB, t);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -240,17 +219,6 @@ void Raytracer::SetPixel(int _x, int _y, const Color& _color)
 	unsigned char bR = static_cast<unsigned char>(sqrt(_color.x * scale) * 255.0f);
 	unsigned char bG = static_cast<unsigned char>(sqrt(_color.y * scale) * 255.0f);
 	unsigned char bB = static_cast<unsigned char>(sqrt(_color.z * scale) * 255.0f);
-
-	UINT32* pixel = static_cast<UINT32*>(imageBuffer);
-	pixel[_x + _y * imageWidth] = TO_RGB(bR, bG, bB);
-}
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::SetPixelDirect(int _x, int _y, const Color& _color)
-{
-	unsigned char bR = static_cast<unsigned char>(_color.x * 255.0f);
-	unsigned char bG = static_cast<unsigned char>(_color.y * 255.0f);
-	unsigned char bB = static_cast<unsigned char>(_color.z * 255.0f);
 
 	UINT32* pixel = static_cast<UINT32*>(imageBuffer);
 	pixel[_x + _y * imageWidth] = TO_RGB(bR, bG, bB);
