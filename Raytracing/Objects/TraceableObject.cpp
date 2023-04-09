@@ -17,6 +17,12 @@ TraceableObject::~TraceableObject()
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
+bool TraceableObject::Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
+{
+	return aabb.Hit(_ray, _tMin, _tMax);
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
 void TraceableObject::OnHit(HitInfo& _hitInfo) const
 {
 	_hitInfo.material = material;

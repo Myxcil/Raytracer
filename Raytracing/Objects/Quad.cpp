@@ -15,6 +15,24 @@ Quad::Quad(const Vector3& _center, const Vector3& _normal, const Vector3& _size,
 		u = Vector3(normal.z,normal.y,normal.x);
 	}
 	v = Vector3::Cross(u,normal);
+
+	Vector3 halfSize = 0.5 * size;
+	halfSize.y = 0.001;
+	
+	Vector3 points[8];
+	points[0] = center - u * halfSize.x - v * halfSize.z - normal * halfSize.y;
+	points[1] = center + u * halfSize.x - v * halfSize.z - normal * halfSize.y;
+	points[2] = center - u * halfSize.x + v * halfSize.z - normal * halfSize.y;
+	points[3] = center + u * halfSize.x + v * halfSize.z - normal * halfSize.y;
+	points[4] = center - u * halfSize.x - v * halfSize.z + normal * halfSize.y;
+	points[5] = center + u * halfSize.x - v * halfSize.z + normal * halfSize.y;
+	points[6] = center - u * halfSize.x + v * halfSize.z + normal * halfSize.y;
+	points[7] = center + u * halfSize.x + v * halfSize.z + normal * halfSize.y;
+	aabb = AABB(points[0],points[0]);
+	for (int i = 1; i < 8; ++i)
+	{
+		aabb.Merge(points[i]);
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

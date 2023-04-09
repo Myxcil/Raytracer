@@ -157,6 +157,8 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Raytracing\Camera.h" />
     <ClInclude Include="Raytracing\Material.h" />
+    <ClInclude Include="Raytracing\Objects\AABB.h" />
+    <ClInclude Include="Raytracing\Objects\Box.h" />
     <ClInclude Include="Raytracing\Objects\Quad.h" />
     <ClInclude Include="Raytracing\Objects\TraceableObject.h" />
     <ClInclude Include="Raytracing\Objects\InfinitePlane.h" />
@@ -184,6 +186,8 @@
     </ClCompile>
     <ClCompile Include="Raytracing\Camera.cpp" />
     <ClCompile Include="Raytracing\Material.cpp" />
+    <ClCompile Include="Raytracing\Objects\AABB.cpp" />
+    <ClCompile Include="Raytracing\Objects\Box.cpp" />
     <ClCompile Include="Raytracing\Objects\InfinitePlane.cpp" />
     <ClCompile Include="Raytracing\Objects\Quad.cpp" />
     <ClCompile Include="Raytracing\Objects\Sphere.cpp" />

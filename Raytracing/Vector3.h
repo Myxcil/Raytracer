@@ -11,9 +11,16 @@ struct Vector3
 	typedef double Type;
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	Type	x;
-	Type	y;
-	Type	z;
+	union
+	{
+		struct
+		{
+			Type	x;
+			Type	y;
+			Type	z;
+		};
+		Type v[3];
+	};
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	Vector3() :x(0), y(0), z(0) { }
@@ -103,5 +110,16 @@ struct Helper
 			v = -v;
 		}
 		return v;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------------------------
+	static void Log(const TCHAR* _szFormat, ...)
+	{
+		TCHAR szBuffer[1024];
+		va_list arg;
+		va_start(arg, _szFormat);
+		_vsnwprintf_s(szBuffer, sizeof(szBuffer), _szFormat, arg);
+		va_end(arg);
+		OutputDebugString(szBuffer);
 	}
 };

@@ -44,9 +44,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     isRunning = true;
 
-    LARGE_INTEGER freq;
-    QueryPerformanceFrequency(&freq);
-    float rcpFreq = 1.0f / freq.QuadPart;
+	LARGE_INTEGER freq;
+	QueryPerformanceFrequency(&freq);
+	float rcpFreq = 1.0f / freq.QuadPart;
 
     LARGE_INTEGER curr,prev;
     QueryPerformanceCounter(&prev);
@@ -124,8 +124,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    ZeroMemory(&rect,sizeof(rect));
    rect.right = 640;
    rect.bottom = 360;
-   rect.right = 1280;
-   rect.bottom = 720;
+//   rect.right = 1280;
+//   rect.bottom = 720;
    AdjustWindowRect(&rect, dwStyle, FALSE);
 
    int width = (rect.right - rect.left);

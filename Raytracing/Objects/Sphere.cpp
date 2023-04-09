@@ -5,6 +5,8 @@
 Sphere::Sphere(const Vector3& _center, Vector3::Type _radius, Material* _material) : TraceableObject(_center, _material)
 {
 	radius = _radius;
+	Vector3 vRadius(radius,radius,radius);
+	aabb = AABB(center-vRadius, center+vRadius);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

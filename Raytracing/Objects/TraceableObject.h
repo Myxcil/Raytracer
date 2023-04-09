@@ -1,5 +1,7 @@
 #pragma once
 
+#include "AABB.h"
+
 //----------------------------------------------------------------------------------------------------------------------------------------
 class TraceableObject;
 class Material;
@@ -42,6 +44,8 @@ class TraceableObject
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	virtual ~TraceableObject();
+
+	bool			Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const;
 	virtual void	Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const = 0;
 
 protected:
@@ -52,6 +56,7 @@ protected:
 protected:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	Vector3			center;
+	AABB			aabb;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------

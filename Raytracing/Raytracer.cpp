@@ -14,24 +14,22 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(256),
+	samplesPerPixel(100),
 	maxRaycastDepth(4),
 	backGround(0,0,0),
 	isRunning(false)
 {
+	LARGE_INTEGER freq;
+	QueryPerformanceFrequency(&freq);
+	rcpTimerFreq = 1.0 / freq.QuadPart;
+
 	InitScene();
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 Raytracer::~Raytracer()
 {
-	isRunning = false;
-	for (size_t i = 0; i < renderThreads.size(); ++i)
-	{
-		renderThreads[i]->join();
-		delete renderThreads[i];
-	}
-	renderThreads.clear();
+	CleanupThreads();
 
 	for (size_t i = 0; i < traceableObjects.size(); ++i)
 	{
@@ -44,6 +42,22 @@ Raytracer::~Raytracer()
 		delete[] imageBuffer;
 		imageBuffer = nullptr;
 	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+void Raytracer::CleanupThreads()
+{
+	isRunning = false;
+	for (size_t i = 0; i < renderThreads.size(); ++i)
+	{
+		if (renderThreads[i]->joinable())
+		{
+			renderThreads[i]->join();
+		}
+		delete renderThreads[i];
+	}
+	renderThreads.clear();
+	Helper::Log(_T("Cleaned render threads\n"));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -69,8 +83,13 @@ void Raytracer::InitCornellBox()
 	traceableObjects.push_back(new Quad(Vector3(-1, 0, 0), Vector3(1, 0, 0), Vector3(1, 1, 0), matRed));	// left
 	traceableObjects.push_back(new Quad(Vector3(1, 0, 0), Vector3(-1, 0, 0), Vector3(1, 1, 0), matGreen));	// right
 
+	// light
 	Material* lightWhite = new DiffuseLight(Color(4,4,4));
-	traceableObjects.push_back(new Quad(Vector3(0,0.99,0), Vector3(0,-1,0), Vector3(0.25,0.25,0), lightWhite));	// light
+	traceableObjects.push_back(new Quad(Vector3(0,0.99,0), Vector3(0,-1,0), Vector3(0.25,0.25,0), lightWhite));	
+
+	// test objects
+	Material* matGlass = new DielectricMaterial(1.5f);
+	traceableObjects.push_back(new Sphere(Vector3(0,-0.75,0), 0.25, matGlass));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -106,20 +125,29 @@ void Raytracer::Run()
 	if (isRunning)
 		return;
 
+	QueryPerformanceCounter(&timeStamp);
+
 	isRunning = true;
 
 	unsigned int numCores = std::thread::hardware_concurrency();
 	unsigned int numThreads = max(1,numCores - 2);
 
 	float linesPerThread = static_cast<float>(imageHeight) / numThreads;
+
+	Helper::Log(_T("Raytracing start: %d threads, with %f lines/thread\n"), numThreads, linesPerThread);
+
 	int lineCount = static_cast<int>(linesPerThread + 0.5f);
+	renderFinished = new bool[lineCount];
+
 	int linesRemain = imageHeight;
 	int startLine = 0;
 	for (unsigned int i = 0; i < numThreads; ++i)
 	{
 		int numLines = min(linesRemain, lineCount);
 
-		std::thread* newThread = new std::thread(&Raytracer::TraceScene, this, startLine, numLines);
+		renderFinished[i] = false;
+
+		std::thread* newThread = new std::thread(&Raytracer::TraceScene, this, i, startLine, numLines);
 		renderThreads.emplace_back(newThread);
 
 		linesRemain -= numLines;
@@ -130,14 +158,35 @@ void Raytracer::Run()
 //----------------------------------------------------------------------------------------------------------------------------------------
 bool Raytracer::IsRunning()
 {
+	if (isRunning)
+	{
+		bool allDone = true;
+		for (size_t i = 0; i < renderThreads.size(); ++i)
+		{
+			if (!renderFinished[i])
+			{
+				allDone = false;
+			}
+		}
+		if (allDone)
+		{
+			LARGE_INTEGER time;
+			QueryPerformanceCounter(&time);
+			double duration = rcpTimerFreq * (time.QuadPart - timeStamp.QuadPart);
+			Helper::Log(_T("Rendering time total: %f\n"), duration);
+	
+			CleanupThreads();
+		}
+	}
 	return isRunning;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::TraceScene(int _startLine, int _numLines)
+void Raytracer::TraceScene(int _threadIndex, int _startLine, int _numLines)
 {
-	Ray ray;
+	Helper::Log(_T("Launch thread #%d with (%d - %d)\n"), _threadIndex, _startLine, _startLine+_numLines);
 
+	Ray ray;
 	for(int i = 0; i < _numLines && isRunning; ++i)
 	{
 		int y = _startLine + i;
@@ -157,6 +206,18 @@ void Raytracer::TraceScene(int _startLine, int _numLines)
 			SetPixel(x, y, finalColor);
 		}
 	}
+
+	LARGE_INTEGER endTime;
+	QueryPerformanceCounter(&endTime);
+
+	double duration = rcpTimerFreq * (endTime.QuadPart - timeStamp.QuadPart);
+	Helper::Log(_T("Thread #%d finished after %f\n"), _threadIndex, duration);
+
+	mutexRenderThreads.lock();
+	{
+		renderFinished[_threadIndex] = true;
+	}
+	mutexRenderThreads.unlock();
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
