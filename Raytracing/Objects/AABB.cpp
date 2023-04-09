@@ -30,6 +30,7 @@ bool AABB::Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 {
 	if (isValid)
 	{
+		Vector3 t = Vector3(0,0,0);
 		for (int i = 0; i < 3; ++i)
 		{
 			Vector3::Type invD = 1.0 / _ray.direction.v[i];
@@ -43,6 +44,8 @@ bool AABB::Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 			_tMax = t1 < _tMin ? t1 : _tMax;
 			if (_tMax <= _tMin)
 				return false;
+
+			t.v[i] = _tMin;
 		}
 	}
 	return true;

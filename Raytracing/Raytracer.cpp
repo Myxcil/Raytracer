@@ -15,6 +15,7 @@ Raytracer::Raytracer() :
 	maxRaycastDepth(8),
 	backGround(0,0,0),
 	useEnviromentBackground(false),
+	maxRenderThreads(1),
 	isRunning(false),
 	isFinished(false)
 {
@@ -94,6 +95,10 @@ void Raytracer::Run()
 
 	unsigned int numCores = std::thread::hardware_concurrency();
 	unsigned int numThreads = max(1,numCores - 2);
+	if (maxRenderThreads > 0)
+	{
+		numThreads = min(numThreads, maxRenderThreads);
+	}
 
 	float linesPerThread = static_cast<float>(imageHeight) / numThreads;
 

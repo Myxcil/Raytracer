@@ -41,6 +41,7 @@ private:
 	World*			world;
 
 	//------------------------------------------------------------------------------------------------------------------------------------
+	unsigned int	maxRenderThreads;
 	typedef std::vector<std::thread*> RenderThreads;
 	RenderThreads	renderThreads;
 	bool*			renderFinished;

@@ -14,8 +14,9 @@ SceneNode::SceneNode(TraceableObjects& _list, size_t _first, size_t _end, int _d
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-SceneNode::SceneNode(TraceableObject* _object) :
-	object(_object)
+SceneNode::SceneNode(TraceableObject* _object, int _depth) :
+	object(_object),
+	depth(_depth)
 {
 	child[0] = nullptr;
 	child[1] = nullptr;
@@ -57,13 +58,13 @@ void SceneNode::Construct(TraceableObjects& _list, size_t _first, size_t _end)
 		{
 			if (compareFunc(_list[_first], _list[_first + 1]))
 			{
-				child[0] = new SceneNode(_list[_first]);
-				child[1] = new SceneNode(_list[_first + 1]);
+				child[0] = new SceneNode(_list[_first], depth + 1);
+				child[1] = new SceneNode(_list[_first + 1], depth + 1);
 			}
 			else
 			{
-				child[0] = new SceneNode(_list[_first + 1]);
-				child[1] = new SceneNode(_list[_first]);
+				child[0] = new SceneNode(_list[_first + 1], depth + 1);
+				child[1] = new SceneNode(_list[_first], depth + 1);
 			}
 		}
 		else

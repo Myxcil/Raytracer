@@ -130,18 +130,12 @@ void World::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vec
 	_hitInfo.isHit = false;
 	_hitInfo.distance = DBL_MAX;
 
-	HitInfo objHit;
 	if (root != nullptr)
 	{
 		root->Raycast(_hitInfo, _ray, _tMin, _tMax);
 	}
-
 	for (size_t i = 0; i < singleObjects.size(); ++i)
 	{
-		singleObjects[i]->Raycast(objHit, _ray, _tMin, _tMax);
-		if (objHit.isHit && objHit.distance < _hitInfo.distance)
-		{
-			_hitInfo = objHit;
-		}
+		singleObjects[i]->Raycast(_hitInfo, _ray, _tMin, _tMax);
 	}
 }
