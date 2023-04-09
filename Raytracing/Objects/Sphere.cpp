@@ -24,7 +24,7 @@ void Sphere::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Ve
 
 	// coefficients for quadratic equation
 	Vector3::Type a = _ray.direction.LengthSq();
-	Vector3::Type half_b = offsetRayOrigin.Dot(_ray.direction);
+	Vector3::Type half_b = Vector3::Dot(offsetRayOrigin, _ray.direction);
 	Vector3::Type c = offsetRayOrigin.LengthSq() - radius * radius;
 
 	// quadratic discrinant
@@ -44,8 +44,9 @@ void Sphere::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Ve
 			_hitInfo.distance = distance;
 
 			_hitInfo.point = _ray.origin + _ray.direction * distance;
-			_hitInfo.surfaceNormal = _hitInfo.point - center;
-			_hitInfo.surfaceNormal.Normalize();
+
+			Vector3 normal = (_hitInfo.point - center) / radius;
+			_hitInfo.SetNormal(_ray.direction, normal);
 
 			OnHit(_hitInfo);
 		}

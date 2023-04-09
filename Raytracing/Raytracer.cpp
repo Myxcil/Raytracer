@@ -17,8 +17,8 @@ Raytracer::Raytracer() :
 	linesPerUpdate(8),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(100),
-	maxRaycastDepth(16)
+	samplesPerPixel(30),
+	maxRaycastDepth(8)
 {
 	InitScene();
 }
@@ -42,11 +42,13 @@ Raytracer::~Raytracer()
 //----------------------------------------------------------------------------------------------------------------------------------------
 void Raytracer::InitScene()
 {
-	traceableObjects.push_back(new Sphere(Vector3(0, 1.0f, 0), 1.0f, new LambertMaterial(Vector3(0.7f, 0.7f, 0.0f))));
-	traceableObjects.push_back(new Sphere(Vector3(1.0f, 0.5f, -1.5f), 0.25f, new LambertMaterial(Vector3(0.8f, 0.1f, 0.1f))));
-	traceableObjects.push_back(new Sphere(Vector3(-5.5f, 0.0f, 0.5f), 3.0f, new MetalMaterial(Vector3(0.2f, 0.8f, 0.3f))));
+	traceableObjects.push_back(new Sphere(Vector3(0, 1.0, 0), 1.0, new DielectricMaterial(1.5f)));
+	traceableObjects.push_back(new Sphere(Vector3(0, 1.0, 0), -0.9, new DielectricMaterial(1.5f)));
 
-	traceableObjects.push_back(new InfinitePlane(Vector3(0, 0, 0), Vector3(0, 1, 0), new LambertMaterial(Vector3(0.1f, 0.2f, 0.5f))));
+	traceableObjects.push_back(new Sphere(Vector3(1.0, 0.5, -1.5f), 0.25, new LambertMaterial(Color(0.8, 0.1, 0.1f))));
+	traceableObjects.push_back(new Sphere(Vector3(-5.5, 0.0, 0.5f), 3.0, new MetalMaterial(Color(0.2, 0.8, 0.3f), 0.01f)));
+
+	traceableObjects.push_back(new InfinitePlane(Vector3(0, 0, 0), Vector3(0, 1, 0), new LambertMaterial(Color(0.1, 0.2, 0.5f))));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -84,38 +86,39 @@ void Raytracer::Update(float _deltaTime)
 {
 	for(int i=0; i < linesPerUpdate && currLine < imageHeight; ++i)
 	{
-		TraceScene();
+		TraceScene(currLine);
+		++currLine;
 	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::TraceScene()
+void Raytracer::TraceScene(int _line)
 {
 	Ray ray;
 
 	for (int x = 0; x < imageWidth; ++x)
 	{
-		Vector3 finalColor;
+		Color finalColor;
 		if (!showObjectNormals)
 		{
 			for (int i = 0; i < samplesPerPixel; ++i)
 			{
 				Vector3::Type tx = rcpDimension.x * (Helper::Random() + x);
-				Vector3::Type ty = 1.0f - rcpDimension.y * (Helper::Random() + currLine);
+				Vector3::Type ty = 1.0f - rcpDimension.y * (Helper::Random() + _line);
 
 				camera.CalculateRay(tx, ty, ray);
 
-				Vector3 color;
+				Color color;
 				EvaluateColor(color, ray, camera.GetNearPlane(), FLT_MAX, maxRaycastDepth);
 				finalColor += color;
 			}
 
-			SetPixel(x, currLine, finalColor);
+			SetPixel(x, _line, finalColor);
 		}
 		else
 		{
 			Vector3::Type tx = rcpDimension.x * x;
-			Vector3::Type ty = 1.0f - rcpDimension.y * currLine;
+			Vector3::Type ty = 1.0f - rcpDimension.y * _line;
 
 			camera.CalculateRay(tx, ty, ray);
 
@@ -130,16 +133,15 @@ void Raytracer::TraceScene()
 				finalColor = ray.direction;
 			}
 			finalColor *= 0.5f;
-			finalColor += Vector3(0.5f, 0.5f, 0.5f);
+			finalColor += Color(0.5, 0.5, 0.5f);
 
-			SetPixelDirect(x, currLine, finalColor);
+			SetPixelDirect(x, _line, finalColor);
 		}
 	}
-	++currLine;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::EvaluateColor(Vector3& _color, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth)
+void Raytracer::EvaluateColor(Color& _color, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth)
 {
 	if (depth > 0)
 	{
@@ -148,16 +150,16 @@ void Raytracer::EvaluateColor(Vector3& _color, const Ray& _ray, Vector3::Type _t
 		if (hitInfo.isHit)
 		{
 			Ray scattered;
-			Vector3 attenuation;
+			Color attenuation;
 			if (hitInfo.material->Scatter(_ray, hitInfo, attenuation, scattered))
 			{
-				Vector3 nextColor;
+				Color nextColor;
 				EvaluateColor(nextColor, scattered, 0.001, DBL_MAX, depth - 1);
 				_color = attenuation * nextColor;
 			}
 			else
 			{
-				_color = Vector3(0,0,0);
+				_color = Color(0,0,0);
 			}
 		}
 		else
@@ -167,7 +169,7 @@ void Raytracer::EvaluateColor(Vector3& _color, const Ray& _ray, Vector3::Type _t
 	}
 	else
 	{
-		_color = Vector3(0,0,0);
+		_color = Color(0,0,0);
 	}
 }
 
@@ -190,25 +192,25 @@ void Raytracer::RaycastObjects(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type
 
 /*
 //----------------------------------------------------------------------------------------------------------------------------------------
-const Vector3 colorZenith = { 0.6f, 0.6f, 1.0f };
-const Vector3 colorHorizon = { 0.8f, 0.8f, 1.0f };
-const Vector3 colorGround = { 0.5f, 0.5f, 0.5f };
+const Vector3 colorZenith = { 0.6, 0.6, 1.0 };
+const Vector3 colorHorizon = { 0.8, 0.8, 1.0 };
+const Vector3 colorGround = { 0.5, 0.5, 0.5 };
 
-const Vector3 sunDirection = { -0.38f, -0.64f, 0.38f };
-const float sunFocus = 4.0f;
-const float sunIntensity = 1.0f;
+const Vector3 sunDirection = { -0.38, -0.64, 0.38 };
+const float sunFocus = 4.0;
+const float sunIntensity = 1.0;
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 void Raytracer::SampleEnviroment(float* _color, const float* _rayDirection)
 {
-	float skyGradientT = powf(FastMath::SmwoothStep(0.0f, 0.4f, _rayDirection[1]), 0.35f);
+	float skyGradientT = powf(FastMath::SmwoothStep(0.0, 0.4, _rayDirection[1]), 0.35);
 
 	Vector3 skyGradient;
 	Vec3_Lerp(skyGradient, colorHorizon, colorZenith, skyGradientT);
 	
-	float sun = powf(FastMath::Max(0.0f, -Vec3_Dot(_rayDirection, sunDirection)), sunFocus) * sunIntensity;
+	float sun = powf(FastMath::Max(0.0, -Vec3_Dot(_rayDirection, sunDirection)), sunFocus) * sunIntensity;
 
-	float groundToSkyT = FastMath::SmwoothStep(0.0f, 0.01f, _rayDirection[1]);
+	float groundToSkyT = FastMath::SmwoothStep(0.0, 0.01, _rayDirection[1]);
 	float sunMask = groundToSkyT >= 1;
 	Vec3_Lerp(_color, colorGround, skyGradient, groundToSkyT);
 
@@ -220,18 +222,18 @@ void Raytracer::SampleEnviroment(float* _color, const float* _rayDirection)
 */
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-const Vector3 colorA = Vector3(1.0, 1.0, 1.0);
-const Vector3 colorB = Vector3(0.5, 0.7, 1.0);
+const Color colorA = Vector3(1.0, 1.0, 1.0);
+const Color colorB = Vector3(0.5, 0.7, 1.0);
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::SampleEnviroment(Vector3& _color, const Vector3& _rayDirection)
+void Raytracer::SampleEnviroment(Color& _color, const Vector3& _rayDirection)
 {
 	Vector3::Type t = 0.5 + 0.5 * _rayDirection.y;
-	_color.Lerp(colorA, colorB, t);
+	_color = Vector3::Lerp(colorA, colorB, t);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::SetPixel(int _x, int _y, const Vector3& _color)
+void Raytracer::SetPixel(int _x, int _y, const Color& _color)
 {
 	float scale = 1.0f / samplesPerPixel;
 
@@ -244,7 +246,7 @@ void Raytracer::SetPixel(int _x, int _y, const Vector3& _color)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::SetPixelDirect(int _x, int _y, const Vector3& _color)
+void Raytracer::SetPixelDirect(int _x, int _y, const Color& _color)
 {
 	unsigned char bR = static_cast<unsigned char>(_color.x * 255.0f);
 	unsigned char bG = static_cast<unsigned char>(_color.y * 255.0f);

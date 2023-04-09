@@ -38,18 +38,21 @@ struct Vector3
 	friend Vector3 operator*(const Vector3::Type _f, const Vector3& _v) { return _v * _f; }
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	void	Normalize()								{ Type scale = Length(); if (scale > 0) this->operator*=(1.0/scale); }
-	Type	LengthSq() const						{ return x*x + y*y + z*z; }
-	Type	Length() const							{ return sqrt(LengthSq()); }
+	void				Normalize()								{ Type scale = Length(); if (scale > 0) this->operator*=(1.0/scale); }
+	Type				LengthSq() const						{ return x*x + y*y + z*z; }
+	Type				Length() const							{ return sqrt(LengthSq()); }
 
-	bool	NearZero() const						{ const Type s = 1e-8; return (fabs(x) < s) && (fabs(y) < s) && (fabs(z) < s); }
+	bool				NearZero() const						{ const Type s = 1e-8; return (fabs(x) < s) && (fabs(y) < s) && (fabs(z) < s); }
 
-	Type	Dot(const Vector3& _v) const			{ return x*_v.x + y*_v.y + z*_v.z; }
-	Vector3 Cross(const Vector3& _v) const			{ return Vector3(y*_v.z-z*_v.y, z*_v.x-x*_v.z, x*_v.y-y*_v.x); }
-	Vector3	Lerp(const Vector3& _a, const Vector3& _b, Vector3::Type _t) { Type u = 1.0 - _t; x = u*_a.x + _t*_b.x; y = u*_a.y + _t*_b.y; z = u*_a.z + _t*_b.z;	return *this; }
+	static Type			Dot(const Vector3& _a, const Vector3& _b);
+	static Vector3		Cross(const Vector3& _a, const Vector3& _b);
+	static Vector3		Lerp(const Vector3& _a, const Vector3& _b, Vector3::Type _t);
 	
-	static Vector3 Reflect(const Vector3& _v, const Vector3& _n) { return _v - 2.0 * _v.Dot(_n) * _n; }
+	static Vector3		Reflect(const Vector3& _v, const Vector3& _n);
+	static Vector3		Refract(const Vector3& _d, const Vector3& _n, Vector3::Type _eta_over_etaPrime);
 };
+
+using Color = Vector3;
 
 //------------------------------------------------------------------------------------------------------------------------------------
 struct Ray
@@ -92,7 +95,7 @@ struct Helper
 	static Vector3 RandomUnitHemisphere(const Vector3& _normal)
 	{
 		Vector3 v = RandomUnitSphere();
-		if (v.Dot(_normal) < 0)
+		if (Vector3::Dot(v, _normal) < 0)
 		{
 			v = -v;
 		}

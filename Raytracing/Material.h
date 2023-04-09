@@ -19,11 +19,11 @@ public:
 
 protected:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	Material(const Vector3& _albedo);
+	Material(const Color& _albedo);
 
 protected:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	Vector3			albedo;
+	Color			albedo;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ class LambertMaterial : public Material
 {
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	LambertMaterial(const Vector3& _albedo);
+	LambertMaterial(const Color& _albedo);
 	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const override;
 };
 
@@ -48,6 +48,29 @@ class MetalMaterial : public Material
 {
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	MetalMaterial(const Vector3& _albedo);
+	MetalMaterial(const Color& _albedo, Vector3::Type _fuzziness);
 	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const override;
+
+private:
+	//------------------------------------------------------------------------------------------------------------------------------------
+	Vector3::Type	fuzziness;
+};
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+//
+//----------------------------------------------------------------------------------------------------------------------------------------
+class DielectricMaterial : public Material
+{
+public:
+	//------------------------------------------------------------------------------------------------------------------------------------
+	DielectricMaterial(Vector3::Type _refractionIndex);
+	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const override;
+
+private:
+	//------------------------------------------------------------------------------------------------------------------------------------
+	static Vector3::Type	CalcReflectance(Vector3::Type _cosine, Vector3::Type _refractionIndex);
+
+private:
+	//------------------------------------------------------------------------------------------------------------------------------------
+	Vector3::Type	refractionIndex;
 };

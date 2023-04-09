@@ -85,6 +85,9 @@
     <ClCompile Include="Raytracing\Material.cpp">
       <Filter>Raytracing</Filter>
     </ClCompile>
+    <ClCompile Include="Raytracing\Vector3.cpp">
+      <Filter>Raytracing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

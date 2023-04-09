@@ -11,6 +11,7 @@ struct HitInfo
 	Vector3::Type			distance;
 	Vector3					point;
 	Vector3					surfaceNormal;
+	bool					frontFace;
 	const Material*			material;
 	const TraceableObject*	object;
 
@@ -20,9 +21,16 @@ struct HitInfo
 		distance(DBL_MAX),
 		point(0,0,0),
 		surfaceNormal(0,1,0),
+		frontFace(false),
 		material(nullptr),
 		object(nullptr)
 	{
+	}
+
+	inline void SetNormal(const Vector3& _rayDirection, const Vector3& _normal)
+	{
+		frontFace = Vector3::Dot(_rayDirection, _normal) < 0;
+		surfaceNormal = frontFace ? _normal : -_normal;
 	}
 };
 

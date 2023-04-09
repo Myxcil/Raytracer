@@ -187,6 +187,7 @@
     <ClCompile Include="Raytracing\Objects\Sphere.cpp" />
     <ClCompile Include="Raytracing\Objects\TraceableObject.cpp" />
     <ClCompile Include="Raytracing\Raytracer.cpp" />
+    <ClCompile Include="Raytracing\Vector3.cpp" />
     <ClCompile Include="Win32\Win32Main.cpp" />
   </ItemGroup>
   <ItemGroup>

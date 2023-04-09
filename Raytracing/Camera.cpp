@@ -10,7 +10,7 @@ Camera::Camera() :
 	nearPlaneHeight(1.0)
 {
 	position = Vector3(1, 1.5, -4);
-	direction = Vector3(-0.5, -0.1, 1);
+	direction = Vector3(-0.5, -0.12, 1);
 	direction.Normalize();
 
 	UpdateTransform();
@@ -50,9 +50,9 @@ void Camera::CalculateRay(Vector3::Type _tx, Vector3::Type _ty, Ray& _ray) const
 void Camera::UpdateTransform()
 {
 	up = Vector3(0,1,0);
-	right = up.Cross(direction);
+	right = Vector3::Cross(up, direction);
 	right.Normalize();
-	up = direction.Cross(right);
+	up = Vector3::Cross(direction, right);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

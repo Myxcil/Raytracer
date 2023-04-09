@@ -40,11 +40,11 @@ private:
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void		InitScene();
-	void		SetPixel(int _x, int _y, const Vector3& _color);
-	void		SetPixelDirect(int _x, int _y, const Vector3& _color);
+	void		SetPixel(int _x, int _y, const Color& _color);
+	void		SetPixelDirect(int _x, int _y, const Color& _color);
 	
-	void		TraceScene();
-	void		EvaluateColor(Vector3& _color, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth);
+	void		TraceScene(int _line);
+	void		EvaluateColor(Color& _color, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth);
 	void		RaycastObjects(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax);
-	void		SampleEnviroment(Vector3& _color, const Vector3& _rayDirection);
+	void		SampleEnviroment(Color& _color, const Vector3& _rayDirection);
 };
