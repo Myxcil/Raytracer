@@ -34,8 +34,8 @@ World::~World()
 //----------------------------------------------------------------------------------------------------------------------------------------
 void World::Init(Camera& _camera, bool& _useEnviromentLight)
 {
-	//InitCornellBox(_camera, _useEnviromentLight);
-	InitTestscene(_camera, _useEnviromentLight);
+	InitCornellBox(_camera, _useEnviromentLight);
+	//InitTestscene(_camera, _useEnviromentLight);
 
 	if (useAABB)
 	{
