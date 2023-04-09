@@ -33,3 +33,15 @@ Vector3 Vector3::Refract(const Vector3& _d, const Vector3& _n, Vector3::Type _et
 	Vector3 parallel = -sqrt(fabs(1.0 - perp.LengthSq())) * _n;
 	return perp + parallel;
 }
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+#define TO_RGB(r,g,b) ((COLORREF)(((BYTE)(b)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(r))<<16)))
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+UINT32 Vector3::ToRGB(Vector3::Type _scale) const
+{
+	unsigned char r = static_cast<unsigned char>(sqrt(x * _scale) * 255.0f);
+	unsigned char g = static_cast<unsigned char>(sqrt(y * _scale) * 255.0f);
+	unsigned char b = static_cast<unsigned char>(sqrt(z * _scale) * 255.0f);
+	return TO_RGB(r,g,b);
+}

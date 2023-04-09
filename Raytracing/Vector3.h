@@ -50,8 +50,11 @@ struct Vector3
 	
 	static Vector3		Reflect(const Vector3& _v, const Vector3& _n);
 	static Vector3		Refract(const Vector3& _d, const Vector3& _n, Vector3::Type _eta_over_etaPrime);
+
+	UINT32				ToRGB(Vector3::Type _scale) const;
 };
 
+//------------------------------------------------------------------------------------------------------------------------------------
 using Color = Vector3;
 
 //------------------------------------------------------------------------------------------------------------------------------------

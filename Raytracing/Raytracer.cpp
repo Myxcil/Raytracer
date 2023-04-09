@@ -8,9 +8,6 @@
 #include "Objects/Quad.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-#define TO_RGB(r,g,b)          ((COLORREF)(((BYTE)(b)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(r))<<16)))
-
-//----------------------------------------------------------------------------------------------------------------------------------------
 Raytracer::Raytracer() :
 	imageBuffer(nullptr),
 	imageWidth(0),
@@ -201,25 +198,20 @@ void Raytracer::RaycastObjects(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-const Color colorA = Vector3(1.0, 1.0, 1.0);
-const Color colorB = Vector3(0.5, 0.7, 1.0);
+const Color colorA = Color(1.0, 1.0, 1.0);
+const Color colorB = Color(0.5, 0.7, 1.0);
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 Color Raytracer::SampleEnviroment(const Vector3& _rayDirection)
 {
 	Vector3::Type t = 0.5 + 0.5 * _rayDirection.y;
-	return Vector3::Lerp(colorA, colorB, t);
+	return Color::Lerp(colorA, colorB, t);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 void Raytracer::SetPixel(int _x, int _y, const Color& _color)
 {
 	float scale = 1.0f / samplesPerPixel;
-
-	unsigned char bR = static_cast<unsigned char>(sqrt(_color.x * scale) * 255.0f);
-	unsigned char bG = static_cast<unsigned char>(sqrt(_color.y * scale) * 255.0f);
-	unsigned char bB = static_cast<unsigned char>(sqrt(_color.z * scale) * 255.0f);
-
 	UINT32* pixel = static_cast<UINT32*>(imageBuffer);
-	pixel[_x + _y * imageWidth] = TO_RGB(bR, bG, bB);
+	pixel[_x + _y * imageWidth] = _color.ToRGB(scale);
 }
