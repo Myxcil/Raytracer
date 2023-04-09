@@ -1,9 +1,10 @@
 #include "pch.h"
 #include "Material.h"
 #include "Objects/TraceableObject.h"
+#include "Textures/Texture.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-Material::Material(const Color& _albedo) :
+Material::Material(const Texture* _albedo) :
 	numRefs(0),
 	albedo(_albedo)
 {
@@ -24,9 +25,15 @@ void Material::Release()
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
+Color Material::SampleAlbedo(const HitInfo& _hitInfo) const
+{
+	return albedo != nullptr ? albedo->Evaluate(_hitInfo.uvw, _hitInfo.point) : Color(0,0,0);
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------------------------------------------------------------
-LambertMaterial::LambertMaterial(const Color& _albedo) :
+LambertMaterial::LambertMaterial(const Texture* _albedo) :
 	Material(_albedo)
 {
 }
@@ -34,7 +41,7 @@ LambertMaterial::LambertMaterial(const Color& _albedo) :
 //----------------------------------------------------------------------------------------------------------------------------------------
 bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const
 {
-	_attenuation = albedo;
+	_attenuation = SampleAlbedo(_hitInfo);
 
 	Vector3 scatterDir = _hitInfo.surfaceNormal + Helper::RandomUnitHemisphere(_hitInfo.surfaceNormal);
 	if (scatterDir.NearZero())
@@ -49,7 +56,7 @@ bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3&
 //----------------------------------------------------------------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------------------------------------------------------------
-MetalMaterial::MetalMaterial(const Color& _albedo, Vector3::Type _fuzziness) :
+MetalMaterial::MetalMaterial(const Texture* _albedo, Vector3::Type _fuzziness) :
 	Material(_albedo),
 	fuzziness(_fuzziness)
 {
@@ -58,7 +65,7 @@ MetalMaterial::MetalMaterial(const Color& _albedo, Vector3::Type _fuzziness) :
 //----------------------------------------------------------------------------------------------------------------------------------------
 bool MetalMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const
 {
-	_attenuation = albedo;
+	_attenuation = SampleAlbedo(_hitInfo);
 
 	Vector3 reflected;
 	reflected = Vector3::Reflect(_ray.direction, _hitInfo.surfaceNormal) + fuzziness * Helper::RandomUnitSphere();
@@ -72,7 +79,7 @@ bool MetalMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _
 //
 //----------------------------------------------------------------------------------------------------------------------------------------
 DielectricMaterial::DielectricMaterial(Vector3::Type _refractionIndex) :
-	Material(Color(1,1,1)),
+	Material(nullptr),
 	refractionIndex(_refractionIndex)
 {
 }
@@ -80,7 +87,7 @@ DielectricMaterial::DielectricMaterial(Vector3::Type _refractionIndex) :
 //----------------------------------------------------------------------------------------------------------------------------------------
 bool DielectricMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const
 {
-	_attenuation = albedo;
+	_attenuation = Color(1,1,1);
 
 	Vector3::Type refractionRatio = _hitInfo.frontFace ? 1.0/refractionIndex : refractionIndex;
 
@@ -115,7 +122,7 @@ Vector3::Type DielectricMaterial::CalcReflectance(Vector3::Type _cosine, Vector3
 //
 //----------------------------------------------------------------------------------------------------------------------------------------
 DiffuseLight::DiffuseLight(const Color& _emit, bool _visible) :
-	Material(Color(0, 0, 0)),
+	Material(nullptr),
 	emit(_emit),
 	visible(_visible)
 {

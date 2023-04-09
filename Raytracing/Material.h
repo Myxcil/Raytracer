@@ -2,6 +2,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 struct HitInfo;
+class Texture;
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 class Material
@@ -16,19 +17,17 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	virtual bool	Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const = 0;
-	virtual void	Emitted(const Vector3& _uvw, const Vector3& _point, Color& _color) const { _color = Color(0,0,0); }
+	virtual Color	Emitted(const Vector3& _uvw, const Vector3& _point) const { return Color(0,0,0); }
 
 protected:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	Material(const Color& _albedo);
-
-protected:
-	//------------------------------------------------------------------------------------------------------------------------------------
-	Color			albedo;
+	Material(const Texture* _albedo);
+	Color			SampleAlbedo(const HitInfo& _hitInfo) const;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	int				numRefs;
+	const Texture*	albedo;
 };
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -38,7 +37,7 @@ class LambertMaterial : public Material
 {
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	LambertMaterial(const Color& _albedo);
+	LambertMaterial(const Texture* _albedo);
 	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const override;
 };
 
@@ -49,7 +48,7 @@ class MetalMaterial : public Material
 {
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	MetalMaterial(const Color& _albedo, Vector3::Type _fuzziness);
+	MetalMaterial(const Texture* _albedo, Vector3::Type _fuzziness);
 	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const override;
 
 private:
@@ -87,7 +86,7 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	bool	Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const override { return false; }
-	void	Emitted(const Vector3& _uvw, const Vector3& _point, Color& _color) const override { _color = emit; }
+	Color	Emitted(const Vector3& _uvw, const Vector3& _point) const override { return emit; }
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------

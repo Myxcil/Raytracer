@@ -164,6 +164,7 @@
     <ClInclude Include="Raytracing\Objects\InfinitePlane.h" />
     <ClInclude Include="Raytracing\Objects\Sphere.h" />
     <ClInclude Include="Raytracing\Raytracer.h" />
+    <ClInclude Include="Raytracing\Textures\Texture.h" />
     <ClInclude Include="Raytracing\Vector3.h" />
     <ClInclude Include="Win32\framework.h" />
     <ClInclude Include="Win32\resource.h" />
@@ -193,6 +194,7 @@
     <ClCompile Include="Raytracing\Objects\Sphere.cpp" />
     <ClCompile Include="Raytracing\Objects\TraceableObject.cpp" />
     <ClCompile Include="Raytracing\Raytracer.cpp" />
+    <ClCompile Include="Raytracing\Textures\Texture.cpp" />
     <ClCompile Include="Raytracing\Vector3.cpp" />
     <ClCompile Include="Win32\Win32Main.cpp" />
   </ItemGroup>

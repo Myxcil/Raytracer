@@ -50,7 +50,17 @@ void Sphere::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Ve
 			Vector3 normal = (_hitInfo.point - center) / radius;
 			_hitInfo.SetNormal(_ray.direction, normal);
 
+			CalcSphereUV(normal, _hitInfo.uvw);
+
 			OnHit(_hitInfo);
 		}
 	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+void Sphere::CalcSphereUV(const Vector3& _point, Vector3& _uvw)
+{
+	Vector3::Type theta = acos(-_point.y);
+	Vector3::Type phi = atan2(-_point.z, _point.x) + M_PI;
+	_uvw = Vector3(phi * 0.5 * M_1_PI, theta * M_1_PI, 0);
 }

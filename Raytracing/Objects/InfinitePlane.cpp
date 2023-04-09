@@ -35,6 +35,8 @@ void InfinitePlane::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _t
 			_hitInfo.point = _ray.origin + _ray.direction * distance;
 			_hitInfo.SetNormal(_ray.direction, normal);
 
+			_hitInfo.uvw = _hitInfo.point;
+
 			OnHit(_hitInfo);
 		}
 	}
