@@ -43,7 +43,7 @@ CheckerTexture::CheckerTexture(const Texture* _colorA, const Texture* _colorB, c
 //----------------------------------------------------------------------------------------------------------------------------------------
 Color CheckerTexture::Evaluate(const Vector3& _uvw, const Vector3& _point) const
 {
-	Vector3 phase = (_uvw * 2.0f * M_PI) * scale;
+	Vector3 phase = _uvw * scale;
 	int ix = (int)floor(phase.x);
 	int iy = (int)floor(phase.y);
 

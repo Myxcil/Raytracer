@@ -80,8 +80,6 @@ void AABB::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vect
 		Vector3 normal = boxVec * 1.000001;
 		normal.Floor();
 		normal.Normalize();
-
 		_hitInfo.SetNormal(_ray.direction, normal);
-		_hitInfo.uvw = (_hitInfo.point - boxCenter) / Size();
 	}
 }

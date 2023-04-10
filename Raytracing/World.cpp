@@ -132,7 +132,7 @@ void World::InitTeapot(Camera& _camera, bool& _useEnviromentLight)
 {
 	_useEnviromentLight = true;
 
-	_camera.SetPosition(Vector3(5, 4, -5));
+	_camera.SetPosition(Vector3(3, 4, -2));
 	_camera.LookAt(Vector3(0, 1, 0));
 
 	Material* matGrey = new LambertMaterial(&ConstantColor::GREY);
@@ -141,7 +141,9 @@ void World::InitTeapot(Camera& _camera, bool& _useEnviromentLight)
 	Material* matWhite = new LambertMaterial(&ConstantColor::WHITE);
 	//worldObjects.push_back(new TriangleMesh(Vector3(0,0,0), _T("Data/teapot.obj"), matWhite));
 
-	worldObjects.push_back(new Box(Vector3(0,1,0), Vector3(1,1,1), matWhite));
+	Texture* checkerboard = new CheckerTexture(&ConstantColor::BLACK, &ConstantColor::WHITE, Vector3(4, 4, 4));
+	Material* matCheckerboard = new LambertMaterial(checkerboard);
+	worldObjects.push_back(new Box(Vector3(0,1,0), Vector3(1,1,1), matCheckerboard));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
