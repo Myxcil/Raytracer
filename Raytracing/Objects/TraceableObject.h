@@ -46,7 +46,7 @@ public:
 	
 	//------------------------------------------------------------------------------------------------------------------------------------
 	virtual Vector3::Type	CalcPDFValue(const Vector3& _origin, const Vector3& _direction) const	{ return 0;}
-	virtual Vector3			GetRandomDirection(const Vector3& _origin) const						{ return Vector3(1,0,0); }
+	virtual Vector3			GetRandomDirection(const Vector3& _origin) const						{ return Vector3(0,0,0); }
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	const AABB&				GetAABB() const { return aabb; }

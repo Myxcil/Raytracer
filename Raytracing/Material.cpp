@@ -124,9 +124,8 @@ Vector3::Type DielectricMaterial::CalcReflectance(Vector3::Type _cosine, Vector3
 //----------------------------------------------------------------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------------------------------------------------------------
-DiffuseLight::DiffuseLight(const Color& _emit, bool _visible) :
+DiffuseLight::DiffuseLight(const Color& _emit) :
 	Material(nullptr),
-	emit(_emit),
-	visible(_visible)
+	emit(_emit)
 {
 }

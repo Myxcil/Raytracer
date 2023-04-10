@@ -13,7 +13,7 @@ Raytracer::Raytracer() :
 	rcpDimension(0,0,0),
 	currLine(0),
 	samplesPerPixel(100),
-	maxRaycastDepth(8),
+	maxRaycastDepth(4),
 	backGround(0,0,0),
 	maxRenderThreads(0),
 	isRunning(false),
@@ -221,7 +221,6 @@ Color Raytracer::EvaluateColor(const Ray& _ray, int depth)
 
 	Ray scatterRay(hitInfo.point, GeneratePDFDirection(scatterInfo.cosinePDF));
 	Vector3::Type pdfValue = GetPDFValue(scatterInfo.cosinePDF, scatterRay.direction);
-	pdfValue = max(0.000001, pdfValue);
 
 	Vector3 result = scatterInfo.attenuation;
 	result *= hitInfo.material->ScatteringPDF(_ray, hitInfo, scatterRay);
