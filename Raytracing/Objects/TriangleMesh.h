@@ -3,19 +3,31 @@
 #include "TraceableObject.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-class Quad;
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-class Box : public TraceableObject
+class TriangleMesh : public TraceableObject
 {
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	Box(const Vector3& _center, const Vector3& _size, Material* _material);
+	TriangleMesh(const Vector3& _center, const TCHAR* _filename, Material* _material);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const override;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	Vector3			size;
+	struct Triangle
+	{
+		int			v[3];
+		Vector3		normal;
+	};
+
+private:
+	//------------------------------------------------------------------------------------------------------------------------------------
+	void			LoadMeshFromFile(const TCHAR* _filename);
+	void			RecalculateNormals();
+	void			RecalculateAABB();
+
+private:
+	//------------------------------------------------------------------------------------------------------------------------------------
+	std::vector<Vector3> vertices;
+	std::vector<Triangle> triangles;
 };

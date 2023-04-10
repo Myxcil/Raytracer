@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "AABB.h"
+#include "TraceableObject.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 void AABB::Merge(const Vector3& _p)
@@ -49,7 +50,7 @@ bool AABB::Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool AABB::Raycast(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, Vector3::Type& _t0, Vector3::Type& _t1) const
+void AABB::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 {
 	Vector3 rMin = (vMin - _ray.origin) / _ray.direction;
 	Vector3 rMax = (vMax - _ray.origin) / _ray.direction;
@@ -57,10 +58,29 @@ bool AABB::Raycast(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, Ve
 	Vector3 t0 = Vector3::Min(rMin,rMax);
 	Vector3 t1 = Vector3::Max(rMin,rMax);
 
-	_t0 = max(max(t0.x,t0.y),t0.z);
-	_t1 = min(min(t1.x,t1.y),t1.z);
+	Vector3::Type tNear = max(max(t0.x,t0.y),t0.z);
+	Vector3::Type tFar = min(min(t1.x,t1.y),t1.z);
 
-	return _t0 >= _tMax && _t0 <= _tMax && _t1 >= 0 && _t1 <= _tMax;
+	if (tNear < tFar)
+	{
+		float distance = tNear >= 0 ? tNear : tFar;
+
+		_hitInfo.isHit = true;
+		_hitInfo.distance = distance;
+		_hitInfo.point = _ray.GetPoint(distance);
+
+		Vector3 boxCenter = (vMin + vMax) / 2.0;
+		Vector3 boxVec = _hitInfo.point - boxCenter;
+		float maxAxis = fmax(fmax(fabs(boxVec.x),fabs(boxVec.y)),fabs(boxVec.z));
+		boxVec /= maxAxis;
+
+		Vector3 normal;
+		normal.x = floor(max(0,min(1,boxVec.x)) * 1.000001);
+		normal.y = floor(max(0, min(1, boxVec.y)) * 1.000001);
+		normal.z = floor(max(0, min(1, boxVec.z)) * 1.000001);
+		normal.Normalize();
+		_hitInfo.SetNormal(_ray.direction, normal);
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

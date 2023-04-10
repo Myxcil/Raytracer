@@ -78,6 +78,8 @@ struct Ray
 
 	Ray() { }
 	Ray(const Vector3& _origin, const Vector3& _direction) : origin(_origin), direction(_direction) { }
+
+	Vector3 GetPoint(Vector3::Type _distance) const				{ return origin + _distance * direction; }
 };
 
 //------------------------------------------------------------------------------------------------------------------------------------

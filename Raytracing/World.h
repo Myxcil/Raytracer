@@ -24,10 +24,11 @@ private:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void				InitCornellBox(Camera& _camera, bool& _useEnviromentLight);
 	void				InitTestscene(Camera& _camera, bool& _useEnviromentLight);
+	void				InitTeapot(Camera& _camera, bool& _useEnviromentLight);
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	TraceableObjects	traceableObjects;
+	TraceableObjects	worldObjects;
 	bool				useAABB;
 	const SceneNode*	root;
 	TraceableObjects	singleObjects;

@@ -43,7 +43,7 @@ void Sphere::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Ve
 			_hitInfo.isHit = true;
 			_hitInfo.distance = distance;
 
-			_hitInfo.point = _ray.origin + _ray.direction * distance;
+			_hitInfo.point = _ray.GetPoint(distance);
 
 			Vector3 normal = (_hitInfo.point - center) / radius;
 			_hitInfo.SetNormal(_ray.direction, normal);

@@ -54,7 +54,6 @@ private:
 	volatile bool	isRunning;
 	bool			isFinished;
 
-
 	//------------------------------------------------------------------------------------------------------------------------------------
 	double			rcpTimerFreq;
 	LARGE_INTEGER	timeStamp;

@@ -11,8 +11,8 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(100),
-	maxRaycastDepth(8),
+	samplesPerPixel(20),
+	maxRaycastDepth(16),
 	backGround(0,0,0),
 	useEnviromentBackground(false),
 	maxRenderThreads(0),
@@ -97,7 +97,7 @@ void Raytracer::Run()
 	isFinished = false;
 
 	unsigned int numCores = std::thread::hardware_concurrency();
-	unsigned int numThreads = max(1,numCores - 2);
+	unsigned int numThreads = max(1,numCores - 1);
 	if (maxRenderThreads > 0)
 	{
 		numThreads = min(numThreads, maxRenderThreads);

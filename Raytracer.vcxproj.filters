@@ -69,6 +69,9 @@
     <ClInclude Include="Raytracing\SceneNode.h">
       <Filter>Raytracing</Filter>
     </ClInclude>
+    <ClInclude Include="Raytracing\Objects\TriangleMesh.h">
+      <Filter>Raytracing\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Raytracer.rc">
@@ -126,6 +129,9 @@
     </ClCompile>
     <ClCompile Include="Raytracing\SceneNode.cpp">
       <Filter>Raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="Raytracing\Objects\TriangleMesh.cpp">
+      <Filter>Raytracing\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

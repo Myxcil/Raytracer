@@ -11,6 +11,8 @@
 #include "Objects/Sphere.h"
 #include "Objects/InfinitePlane.h"
 #include "Objects/Quad.h"
+#include "Objects/Box.h"
+#include "Objects/TriangleMesh.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 World::World() :
@@ -24,40 +26,41 @@ World::~World()
 {
 	singleObjects.clear();
 
-	for (size_t i = 0; i < traceableObjects.size(); ++i)
+	for (size_t i = 0; i < worldObjects.size(); ++i)
 	{
-		delete traceableObjects[i];
+		delete worldObjects[i];
 	}
-	traceableObjects.clear();
+	worldObjects.clear();
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 void World::Init(Camera& _camera, bool& _useEnviromentLight)
 {
-	InitCornellBox(_camera, _useEnviromentLight);
+	//InitCornellBox(_camera, _useEnviromentLight);
 	//InitTestscene(_camera, _useEnviromentLight);
+	InitTeapot(_camera, _useEnviromentLight);
 
 	if (useAABB)
 	{
 		TraceableObjects objectsWithAABB;
-		for (size_t i = 0; i < traceableObjects.size(); ++i)
+		for (size_t i = 0; i < worldObjects.size(); ++i)
 		{
-			if (traceableObjects[i]->GetAABB().IsValid())
+			if (worldObjects[i]->GetAABB().IsValid())
 			{
-				objectsWithAABB.push_back(traceableObjects[i]);
+				objectsWithAABB.push_back(worldObjects[i]);
 			}
 			else
 			{
-				singleObjects.push_back(traceableObjects[i]);
+				singleObjects.push_back(worldObjects[i]);
 			}
 		}
 		root = new SceneNode(objectsWithAABB, 0, objectsWithAABB.size(), 0);
 	}
 	else
 	{
-		for (size_t i = 0; i < traceableObjects.size(); ++i)
+		for (size_t i = 0; i < worldObjects.size(); ++i)
 		{
-			singleObjects.push_back(traceableObjects[i]);
+			singleObjects.push_back(worldObjects[i]);
 		}
 	}
 }
@@ -75,27 +78,27 @@ void World::InitCornellBox(Camera& _camera, bool& _useEnviromentLight)
 	Material* matWhite = new LambertMaterial(&ConstantColor::WHITE);
 
 	// actual box
-	traceableObjects.push_back(new Quad(Vector3(0, -1, 0), Vector3(0, 1, 0), Vector3(1, 1, 0), matWhite));	// bottom
-	traceableObjects.push_back(new Quad(Vector3(0, 0, 1), Vector3(0, 0, -1), Vector3(1, 1, 0), matWhite));	// back
-	traceableObjects.push_back(new Quad(Vector3(0, 1, 0), Vector3(0, -1, 0), Vector3(1, 1, 0), matWhite));	// top
-	traceableObjects.push_back(new Quad(Vector3(0, 0, -1), Vector3(0, 0, 1), Vector3(1, 1, 0), matWhite));	// front
+	worldObjects.push_back(new Quad(Vector3(0, -1, 0), Vector3(0, 1, 0), Vector3(1, 1, 0), matWhite));	// bottom
+	worldObjects.push_back(new Quad(Vector3(0, 0, 1), Vector3(0, 0, -1), Vector3(1, 1, 0), matWhite));	// back
+	worldObjects.push_back(new Quad(Vector3(0, 1, 0), Vector3(0, -1, 0), Vector3(1, 1, 0), matWhite));	// top
+	worldObjects.push_back(new Quad(Vector3(0, 0, -1), Vector3(0, 0, 1), Vector3(1, 1, 0), matWhite));	// front
 
-	traceableObjects.push_back(new Quad(Vector3(-1, 0, 0), Vector3(1, 0, 0), Vector3(1, 1, 0), matRed));	// left
-	traceableObjects.push_back(new Quad(Vector3(1, 0, 0), Vector3(-1, 0, 0), Vector3(1, 1, 0), matGreen));	// right
+	worldObjects.push_back(new Quad(Vector3(-1, 0, 0), Vector3(1, 0, 0), Vector3(1, 1, 0), matRed));	// left
+	worldObjects.push_back(new Quad(Vector3(1, 0, 0), Vector3(-1, 0, 0), Vector3(1, 1, 0), matGreen));	// right
 
 	// light
 	Material* lightWhite = new DiffuseLight(Color(4, 4, 4));
-	traceableObjects.push_back(new Quad(Vector3(0, 0.99, 0), Vector3(0, -1, 0), Vector3(0.25, 0.25, 0), lightWhite));
+	worldObjects.push_back(new Quad(Vector3(0, 0.99, 0), Vector3(0, -1, 0), Vector3(0.25, 0.25, 0), lightWhite));
 
 	// test objects
 	Material* matGlass = new DielectricMaterial(1.5f);
-	traceableObjects.push_back(new Sphere(Vector3(0, -0.75, -0.5), 0.25, matGlass));
+	worldObjects.push_back(new Sphere(Vector3(0, -0.75, -0.5), 0.25, matGlass));
 
 	Material* matBlue = new LambertMaterial(&ConstantColor::BLUE);
-	traceableObjects.push_back(new Sphere(Vector3(-0.5, -0.75, 0.25), 0.25, matBlue));
+	worldObjects.push_back(new Sphere(Vector3(-0.5, -0.75, 0.25), 0.25, matBlue));
 
 	Material* matMetal = new MetalMaterial(&ConstantColor::WHITE, 0);
-	traceableObjects.push_back(new Sphere(Vector3(0.5, -0.75, 0.25), 0.25, matMetal));
+	worldObjects.push_back(new Sphere(Vector3(0.5, -0.75, 0.25), 0.25, matMetal));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -107,7 +110,7 @@ void World::InitTestscene(Camera& _camera, bool& _useEnviromentLight)
 	_camera.LookAt(Vector3(0, 1, 0));
 
 	Material* matGrey = new LambertMaterial(&ConstantColor::GREY);
-	traceableObjects.push_back(new InfinitePlane(Vector3(0, 0, 0), Vector3(0, 1, 0), true, matGrey));
+	worldObjects.push_back(new InfinitePlane(Vector3(0, 0, 0), Vector3(0, 1, 0), true, matGrey));
 
 	Texture* checkerboard = new CheckerTexture(&ConstantColor::BLACK, &ConstantColor::WHITE, Vector3(4, 4, 4));
 	Material* matCheckerboard = new LambertMaterial(checkerboard);
@@ -115,13 +118,30 @@ void World::InitTestscene(Camera& _camera, bool& _useEnviromentLight)
 	Material* matRed = new MetalMaterial(&ConstantColor::RED, 0.05);
 	Material* matGreen = new LambertMaterial(&ConstantColor::GREEN);
 	Material* matBlue = new LambertMaterial(&ConstantColor::BLUE);
-	traceableObjects.push_back(new Sphere(Vector3(0, 1, -1), 1, matCheckerboard));
-	traceableObjects.push_back(new Sphere(Vector3(-2, 1, 1), 1, matGreen));
-	traceableObjects.push_back(new Sphere(Vector3(2, 1, 1), 1, matBlue));
-	traceableObjects.push_back(new Sphere(Vector3(-3, 2, -3), 2, matRed));
+	worldObjects.push_back(new Sphere(Vector3(0, 1, -1), 1, matCheckerboard));
+	worldObjects.push_back(new Sphere(Vector3(-2, 1, 1), 1, matGreen));
+	worldObjects.push_back(new Sphere(Vector3(2, 1, 1), 1, matBlue));
+	worldObjects.push_back(new Sphere(Vector3(-3, 2, -3), 2, matRed));
 
 	Material* lightWhite = new DiffuseLight(Color(4, 4, 4));
-	traceableObjects.push_back(new Sphere(Vector3(0, 5, 0), 1, lightWhite));
+	worldObjects.push_back(new Sphere(Vector3(0, 5, 0), 1, lightWhite));
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+void World::InitTeapot(Camera& _camera, bool& _useEnviromentLight)
+{
+	_useEnviromentLight = true;
+
+	_camera.SetPosition(Vector3(5, 4, -5));
+	_camera.LookAt(Vector3(0, 1, 0));
+
+	Material* matGrey = new LambertMaterial(&ConstantColor::GREY);
+	worldObjects.push_back(new InfinitePlane(Vector3(0, 0, 0), Vector3(0, 1, 0), true, matGrey));
+
+	Material* matWhite = new LambertMaterial(&ConstantColor::WHITE);
+	//worldObjects.push_back(new TriangleMesh(Vector3(0,0,0), _T("Data/teapot.obj"), matWhite));
+
+	worldObjects.push_back(new Box(Vector3(0,1,0), Vector3(1,1,1), matWhite));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
