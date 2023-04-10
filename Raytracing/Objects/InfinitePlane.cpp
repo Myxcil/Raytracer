@@ -16,7 +16,7 @@ InfinitePlane::~InfinitePlane()
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool InfinitePlane::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
+void InfinitePlane::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 {
 	Vector3::Type denom = Vector3::Dot(_ray.direction, normal);
 	if (!oneSided)
@@ -27,7 +27,7 @@ bool InfinitePlane::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _t
 	{
 		Vector3 diff = center - _ray.origin;
 		Vector3::Type distance = fabs(Vector3::Dot(diff, normal) / denom);
-		if (distance > 1e-6 && distance < _hitInfo.distance)
+		if (distance > 1e-6)
 		{
 			_hitInfo.isHit = true;
 			_hitInfo.distance = distance;
@@ -38,9 +38,6 @@ bool InfinitePlane::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _t
 			_hitInfo.uvw = _hitInfo.point;
 
 			OnHit(_hitInfo);
-
-			return true;
 		}
 	}
-	return false;
 }

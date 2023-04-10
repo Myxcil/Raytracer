@@ -12,7 +12,7 @@ public:
 	~SceneNode();
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	bool					Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const;
+	void					Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------

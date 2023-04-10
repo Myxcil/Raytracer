@@ -22,13 +22,7 @@ struct HitInfo
 	//------------------------------------------------------------------------------------------------------------------------------------
 	HitInfo() :
 		isHit(false),
-		distance(DBL_MAX),
-		point(0,0,0),
-		surfaceNormal(0,1,0),
-		uvw(0,0,0),
-		frontFace(false),
-		material(nullptr),
-		object(nullptr)
+		distance(DBL_MAX)
 	{
 	}
 
@@ -48,7 +42,7 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	bool			Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const;
-	virtual bool	Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const = 0;
+	virtual void	Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const = 0;
 	
 	//------------------------------------------------------------------------------------------------------------------------------------
 	const AABB&		GetAABB() const { return aabb; }

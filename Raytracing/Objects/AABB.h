@@ -24,6 +24,7 @@ public:
 	void			Merge(const Vector3& _p);
 	void			Merge(const AABB& _other);
 	bool			Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const;
+	bool			Raycast(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, Vector3::Type& _t0, Vector3::Type& _t1) const;
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	ClipResult		Clip(const AABB& _other) const;

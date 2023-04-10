@@ -44,10 +44,16 @@ private:
 	unsigned int	maxRenderThreads;
 	typedef std::vector<std::thread*> RenderThreads;
 	RenderThreads	renderThreads;
+
+	std::mutex		mutexRemainingLines;
+	std::vector<int> remainingLines;
+
 	bool*			renderFinished;
 	std::mutex		mutexRenderThreads;
+
 	volatile bool	isRunning;
 	bool			isFinished;
+
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	double			rcpTimerFreq;
@@ -59,11 +65,7 @@ private:
 	void			SetPixel(int _x, int _y, const Color& _color);
 	
 	//------------------------------------------------------------------------------------------------------------------------------------
-	void			TraceScene(int _threadIndex, int _startLine, int _numLines);
+	void			TraceScene(int _threadIndex);
 	Color			EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth);
 	Color			SampleEnviroment(const Vector3& _rayDirection);
-
-	//------------------------------------------------------------------------------------------------------------------------------------
-	void			InitCornellBox();
-	void			InitTestscene();
 };

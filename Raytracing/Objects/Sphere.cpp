@@ -18,10 +18,8 @@ Sphere::~Sphere()
 //		x² + y² + z² = r²
 // =>	|ray.pos + ray.dir * dst|² = r²
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool Sphere::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
+void Sphere::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 {
-	_hitInfo.isHit = false;
-
 	Vector3 offsetRayOrigin = _ray.origin - center;
 
 	// coefficients for quadratic equation
@@ -42,26 +40,19 @@ bool Sphere::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Ve
 		}
 		if (_tMin <= distance && distance <= _tMax)
 		{
-			if (distance < _hitInfo.distance)
-			{
-				_hitInfo.isHit = true;
-				_hitInfo.distance = distance;
+			_hitInfo.isHit = true;
+			_hitInfo.distance = distance;
 
-				_hitInfo.point = _ray.origin + _ray.direction * distance;
+			_hitInfo.point = _ray.origin + _ray.direction * distance;
 
-				Vector3 normal = (_hitInfo.point - center) / radius;
-				_hitInfo.SetNormal(_ray.direction, normal);
+			Vector3 normal = (_hitInfo.point - center) / radius;
+			_hitInfo.SetNormal(_ray.direction, normal);
 
-				CalcSphereUV(normal, _hitInfo.uvw);
+			CalcSphereUV(normal, _hitInfo.uvw);
 
-				OnHit(_hitInfo);
-
-				return true;
-			}
+			OnHit(_hitInfo);
 		}
 	}
-
-	return false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

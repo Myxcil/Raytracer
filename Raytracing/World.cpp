@@ -34,8 +34,8 @@ World::~World()
 //----------------------------------------------------------------------------------------------------------------------------------------
 void World::Init(Camera& _camera, bool& _useEnviromentLight)
 {
-	//InitCornellBox(_camera, _useEnviromentLight);
-	InitTestscene(_camera, _useEnviromentLight);
+	InitCornellBox(_camera, _useEnviromentLight);
+	//InitTestscene(_camera, _useEnviromentLight);
 
 	if (useAABB)
 	{
@@ -127,15 +127,18 @@ void World::InitTestscene(Camera& _camera, bool& _useEnviromentLight)
 //----------------------------------------------------------------------------------------------------------------------------------------
 void World::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax)
 {
-	_hitInfo.isHit = false;
-	_hitInfo.distance = DBL_MAX;
-
 	if (root != nullptr)
 	{
 		root->Raycast(_hitInfo, _ray, _tMin, _tMax);
 	}
+	
+	HitInfo singleHit;
 	for (size_t i = 0; i < singleObjects.size(); ++i)
 	{
-		singleObjects[i]->Raycast(_hitInfo, _ray, _tMin, _tMax);
+		singleObjects[i]->Raycast(singleHit, _ray, _tMin, _tMax);
+		if (singleHit.isHit && singleHit.distance < _hitInfo.distance)
+		{
+			_hitInfo = singleHit;
+		}
 	}
 }

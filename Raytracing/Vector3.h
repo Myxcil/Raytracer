@@ -33,6 +33,7 @@ struct Vector3
 	inline Vector3& operator-=(const Vector3& _v)	{ x -= _v.x; y -= _v.y; z -= _v.z; return *this; }
 	inline Vector3& operator*=(const Vector3& _v)	{ x *= _v.x; y *= _v.y; z *= _v.z; return *this; }
 	inline Vector3& operator*=(Type _f)				{ x *= _f; y *= _f; z *= _f; return *this; }
+	inline Vector3& operator/=(const Vector3& _v)	{ x /= _v.x; y /= _v.y; z /= _v.z; return *this; }
 	inline Vector3& operator/=(Type _f)				{ return this->operator*=(1.0 / _f); }
 	
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -40,6 +41,7 @@ struct Vector3
 	inline Vector3 operator-(const Vector3& _v) const	{ return Vector3(*this).operator-=(_v); }
 	inline Vector3 operator*(const Vector3& _v) const	{ return Vector3(*this).operator*=(_v); }
 	inline Vector3 operator*(Vector3::Type _f) const	{ return Vector3(*this).operator*=(_f); }
+	inline Vector3 operator/(const Vector3& _v) const	{ return Vector3(*this).operator/=(_v); }
 	inline Vector3 operator/(Vector3::Type _f) const	{ return Vector3(*this).operator/=(_f); }
 
 	friend Vector3 operator*(const Vector3::Type _f, const Vector3& _v) { return _v * _f; }
@@ -58,6 +60,9 @@ struct Vector3
 	
 	static Vector3		Reflect(const Vector3& _v, const Vector3& _n);
 	static Vector3		Refract(const Vector3& _d, const Vector3& _n, Vector3::Type _eta_over_etaPrime);
+
+	static Vector3		Min(const Vector3& _a, const Vector3& _b) { return Vector3(min(_a.x,_b.x),min(_a.y,_b.y),min(_a.z,_b.z)); }
+	static Vector3		Max(const Vector3& _a, const Vector3& _b) { return Vector3(max(_a.x,_b.x),max(_a.y,_b.y),max(_a.z,_b.z)); }
 
 	UINT32				ToRGB(Vector3::Type _scale) const;
 };

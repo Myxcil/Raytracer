@@ -3,6 +3,9 @@
 #include "TraceableObject.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
+class Quad;
+
+//----------------------------------------------------------------------------------------------------------------------------------------
 class Box : public TraceableObject
 {
 public:
@@ -10,9 +13,10 @@ public:
 	Box(const Vector3& _center, const Vector3& _size, Material* _material);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	bool			Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const override;
+	void			Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const override;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	Vector3			size;
+	Quad*			quads[6];
 };

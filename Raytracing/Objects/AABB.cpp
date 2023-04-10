@@ -30,7 +30,6 @@ bool AABB::Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 {
 	if (isValid)
 	{
-		Vector3 t = Vector3(0,0,0);
 		for (int i = 0; i < 3; ++i)
 		{
 			Vector3::Type invD = 1.0 / _ray.direction.v[i];
@@ -44,11 +43,24 @@ bool AABB::Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 			_tMax = t1 < _tMin ? t1 : _tMax;
 			if (_tMax <= _tMin)
 				return false;
-
-			t.v[i] = _tMin;
 		}
 	}
 	return true;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+bool AABB::Raycast(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, Vector3::Type& _t0, Vector3::Type& _t1) const
+{
+	Vector3 rMin = (vMin - _ray.origin) / _ray.direction;
+	Vector3 rMax = (vMax - _ray.origin) / _ray.direction;
+	
+	Vector3 t0 = Vector3::Min(rMin,rMax);
+	Vector3 t1 = Vector3::Max(rMin,rMax);
+
+	_t0 = max(max(t0.x,t0.y),t0.z);
+	_t1 = min(min(t1.x,t1.y),t1.z);
+
+	return _t0 >= _tMax && _t0 <= _tMax && _t1 >= 0 && _t1 <= _tMax;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

@@ -11,17 +11,20 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(10),
+	samplesPerPixel(100),
 	maxRaycastDepth(8),
 	backGround(0,0,0),
 	useEnviromentBackground(false),
-	maxRenderThreads(1),
+	maxRenderThreads(0),
 	isRunning(false),
-	isFinished(false)
+	isFinished(false),
+	renderFinished(nullptr)
 {
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
 	rcpTimerFreq = 1.0 / freq.QuadPart;
+
+	timeStamp.QuadPart = 0;
 
 	world = new World();
 	world->Init(camera, useEnviromentBackground);
@@ -100,26 +103,20 @@ void Raytracer::Run()
 		numThreads = min(numThreads, maxRenderThreads);
 	}
 
-	float linesPerThread = static_cast<float>(imageHeight) / numThreads;
+	Helper::Log(_T("Raytracing start: %d threads\n"), numThreads);
 
-	Helper::Log(_T("Raytracing start: %d threads, with %f lines/thread\n"), numThreads, linesPerThread);
+	for(int i=imageHeight-1; i >= 0; --i)
+	{
+		remainingLines.push_back(i);
+	}
 
-	int lineCount = static_cast<int>(linesPerThread + 0.5f);
-	renderFinished = new bool[lineCount];
-
-	int linesRemain = imageHeight;
-	int startLine = 0;
+	renderFinished = new bool[numThreads];
 	for (unsigned int i = 0; i < numThreads; ++i)
 	{
-		int numLines = min(linesRemain, lineCount);
-
 		renderFinished[i] = false;
 
-		std::thread* newThread = new std::thread(&Raytracer::TraceScene, this, i, startLine, numLines);
+		std::thread* newThread = new std::thread(&Raytracer::TraceScene, this, i);
 		renderThreads.emplace_back(newThread);
-
-		linesRemain -= numLines;
-		startLine += numLines;
 	}
 }
 
@@ -153,14 +150,24 @@ bool Raytracer::IsRunning()
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Raytracer::TraceScene(int _threadIndex, int _startLine, int _numLines)
+void Raytracer::TraceScene(int _threadIndex)
 {
-	Helper::Log(_T("Launch thread #%d with (%d - %d)\n"), _threadIndex, _startLine, _startLine+_numLines);
+	Helper::Log(_T("Launched thread #%d)\n"), _threadIndex);
 
-	Ray ray;
-	for(int i = 0; i < _numLines && isRunning; ++i)
+	while (true)	
 	{
-		int y = _startLine + i;
+		int y = -1;
+		mutexRemainingLines.lock();
+		if (remainingLines.size() > 0)
+		{
+			y = remainingLines.back();
+			remainingLines.pop_back();
+		}
+		mutexRemainingLines.unlock();
+		if (y == -1)
+			break;
+
+		Ray ray;
 		for (int x = 0; x < imageWidth && isRunning; ++x)
 		{
 			Color finalColor;

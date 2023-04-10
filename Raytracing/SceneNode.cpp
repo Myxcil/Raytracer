@@ -106,27 +106,24 @@ bool SceneNode::AABBCompare(const TraceableObject* _a, const TraceableObject* _b
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool SceneNode::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
+void SceneNode::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 {
-	bool wasHit = false;
 	if (object != NULL)
 	{
-		wasHit = object->Raycast(_hitInfo, _ray, _tMin, _tMax);
+		object->Raycast(_hitInfo, _ray, _tMin, _tMax);
 	}
 	else
 	{
 		if (aabb.Hit(_ray, _tMin, _tMax))
 		{
-			if (child[0] != nullptr && child[0]->Raycast(_hitInfo, _ray, _tMin, _tMax))
+			if (child[0] != nullptr)
 			{
-				wasHit = true;
+				child[0]->Raycast(_hitInfo, _ray, _tMin, _tMax);
 			}
-			if (child[1] != nullptr && child[1]->Raycast(_hitInfo, _ray, _tMin, _tMax))
+			if (child[1] != nullptr && child)
 			{
-				wasHit = true;
+				child[1]->Raycast(_hitInfo, _ray, _tMin, _tMax);
 			}
 		}
 	}
-	
-	return wasHit;
 }
