@@ -12,6 +12,10 @@ public:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const override;
 
+	//------------------------------------------------------------------------------------------------------------------------------------
+	Vector3::Type	CalcPDFValue(const Vector3& _origin, const Vector3& _direction) const override;
+	Vector3			GetRandomDirection(const Vector3& _origin) const override;
+
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			ConstructAABB();

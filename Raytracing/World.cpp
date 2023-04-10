@@ -17,7 +17,8 @@
 //----------------------------------------------------------------------------------------------------------------------------------------
 World::World() :
 	useAABB(true),
-	root(nullptr)
+	root(nullptr),
+	lightsPDF(nullptr)
 {
 }
 
@@ -34,11 +35,11 @@ World::~World()
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void World::Init(Camera& _camera, bool& _useEnviromentLight)
+void World::Init(Camera& _camera, Color& _backGround)
 {
-	//InitCornellBox(_camera, _useEnviromentLight);
-	//InitTestscene(_camera, _useEnviromentLight);
-	InitTeapot(_camera, _useEnviromentLight);
+	InitCornellBox(_camera, _backGround);
+	//InitTestscene(_camera, _backGround);
+	//InitTeapot(_camera, _backGround);
 
 	if (useAABB)
 	{
@@ -66,13 +67,23 @@ void World::Init(Camera& _camera, bool& _useEnviromentLight)
 			singleObjects.push_back(worldObjects[i]);
 		}
 	}
+
+	for(int i=0; i < worldObjects.size(); ++i)
+	{
+		if (worldObjects[i]->IsEmissive())
+		{
+			lights.push_back(worldObjects[i]);
+		}
+	}
+	if (lights.size() > 0)
+	{
+		lightsPDF = new ObjectsPDF(lights);
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void World::InitCornellBox(Camera& _camera, bool& _useEnviromentLight)
+void World::InitCornellBox(Camera& _camera, Color& _backGround)
 {
-	_useEnviromentLight = false;
-
 	_camera.SetPosition(Vector3(0, 0.0, -3));
 
 	// cornell box
@@ -94,26 +105,20 @@ void World::InitCornellBox(Camera& _camera, bool& _useEnviromentLight)
 	worldObjects.push_back(new Quad(Vector3(0, 0.99, 0), Vector3(0, -1, 0), Vector3(0.25, 0.25, 0), lightWhite));
 
 	// test objects
-	/*
-	Material* matGlass = new DielectricMaterial(1.5f);
-	worldObjects.push_back(new Sphere(Vector3(0, -0.75, -0.5), 0.25, matGlass));
+	/**/
+	Material* matYellow = new LambertMaterial(&ConstantColor::YELLOW);
+	worldObjects.push_back(new Sphere(Vector3(0, -0.75, -0.5), 0.25, matYellow));
 
 	Material* matBlue = new LambertMaterial(&ConstantColor::BLUE);
 	worldObjects.push_back(new Sphere(Vector3(-0.5, -0.75, 0.25), 0.25, matBlue));
 
-	Material* matMetal = new MetalMaterial(&ConstantColor::WHITE, 0);
-	worldObjects.push_back(new Sphere(Vector3(0.5, -0.75, 0.25), 0.25, matMetal));
-	*/
-
-	Material* matBlue = new LambertMaterial(&ConstantColor::BLUE);
-	worldObjects.push_back(new TriangleMesh(Vector3(0, -1.0, 0), _T("Data/teapot.obj"), 0.25f, matBlue));
+	Material* matGrey = new LambertMaterial(&ConstantColor::GREY);
+	worldObjects.push_back(new Sphere(Vector3(0.5, -0.75, 0.25), 0.25, matGrey));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void World::InitTestscene(Camera& _camera, bool& _useEnviromentLight)
+void World::InitTestscene(Camera& _camera, Color& _backGround)
 {
-	_useEnviromentLight = true;
-
 	_camera.SetPosition(Vector3(5, 4, -5));
 	_camera.LookAt(Vector3(0, 1, 0));
 
@@ -123,7 +128,7 @@ void World::InitTestscene(Camera& _camera, bool& _useEnviromentLight)
 	Texture* checkerboard = new CheckerTexture(&ConstantColor::BLACK, &ConstantColor::WHITE, Vector3(4, 4, 4));
 	Material* matCheckerboard = new LambertMaterial(checkerboard);
 
-	Material* matRed = new MetalMaterial(&ConstantColor::RED, 0.05);
+	Material* matRed = new LambertMaterial(&ConstantColor::RED);
 	Material* matGreen = new LambertMaterial(&ConstantColor::GREEN);
 	Material* matBlue = new LambertMaterial(&ConstantColor::BLUE);
 	worldObjects.push_back(new Sphere(Vector3(0, 1, -1), 1, matCheckerboard));
@@ -136,10 +141,8 @@ void World::InitTestscene(Camera& _camera, bool& _useEnviromentLight)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void World::InitTeapot(Camera& _camera, bool& _useEnviromentLight)
+void World::InitTeapot(Camera& _camera, Color& _backGround)
 {
-	_useEnviromentLight = true;
-
 	_camera.SetPosition(Vector3(3, 4, -6));
 	_camera.LookAt(Vector3(0, 1, 0));
 
@@ -158,7 +161,7 @@ void World::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vec
 	{
 		root->Raycast(_hitInfo, _ray, _tMin, _tMax);
 	}
-	
+
 	HitInfo singleHit;
 	for (size_t i = 0; i < singleObjects.size(); ++i)
 	{

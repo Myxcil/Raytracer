@@ -28,3 +28,9 @@ void TraceableObject::OnHit(HitInfo& _hitInfo) const
 	_hitInfo.material = material;
 	_hitInfo.object = this;
 }
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+bool TraceableObject::IsEmissive() const
+{
+	return material != NULL && material->IsEmissive();
+}

@@ -71,4 +71,31 @@ bool Sphere::Intersect(const Ray& _ray, const Vector3& _center, Vector3::Type _r
 	Vector3::Type sqrt_d = sqrt(d);
 	_t0 = (-half_b - sqrt_d) / a;
 	_t1 = (-half_b + sqrt_d) / a;;
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+Vector3::Type Sphere::CalcPDFValue(const Vector3& _origin, const Vector3& _direction) const
+{
+	Ray ray(_origin, _direction);
+	HitInfo hitInfo;
+	Raycast(hitInfo, ray, 0.001, DBL_MAX);
+	if (!hitInfo.isHit)
+		return 0;
+
+	Vector3 diff = center - _origin;
+	Vector3::Type cos_theta_max = sqrt(1.0 - radius*radius/diff.LengthSq());
+	Vector3::Type solidAngle = 2.0 * M_PI * (1.0 - cos_theta_max);
+	
+	return 1.0 / solidAngle;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+Vector3 Sphere::GetRandomDirection(const Vector3& _origin) const
+{
+	Vector3 direction = center - _origin;
+	Vector3::Type distSq = direction.LengthSq();
+
+	return ONB(direction).Transform(Helper::RandomToSphere(radius,distSq));
 }
