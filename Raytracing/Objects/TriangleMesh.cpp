@@ -13,7 +13,11 @@ TriangleMesh::TriangleMesh(const Vector3& _center, const TCHAR* _filename, Mater
 //----------------------------------------------------------------------------------------------------------------------------------------
 void TriangleMesh::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 {
-	
+	aabb.Raycast(_hitInfo, _ray, _tMin, _tMax);
+	if (_hitInfo.isHit)
+	{
+		OnHit(_hitInfo);
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

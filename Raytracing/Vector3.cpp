@@ -50,9 +50,19 @@ UINT32 Vector3::ToRGB(Vector3::Type _scale) const
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Vector3::Floor()
+Vector3 Vector3::Div(const Vector3& _a, const Vector3& _b)
 {
-	x = x >= 0 ? floor(x) : ceil(x);
-	y = y >= 0 ? floor(y) : ceil(y);
-	z = z >= 0 ? floor(z) : ceil(z);
+	Vector3 v(_a);
+	for (int i = 0; i < 3; ++i)
+	{
+		if (_b.v[i] != 0)
+		{
+			v.v[i] /= _b.v[i];
+		}
+		else if (v.v[i] != 0)
+		{
+			v.v[i] = v.v[i] >= 0 ? DBL_MAX : -DBL_MAX;
+		}
+	}
+	return v;
 }

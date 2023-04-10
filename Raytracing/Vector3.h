@@ -23,7 +23,7 @@ struct Vector3
 	};
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	Vector3() :x(0), y(0), z(0) { }
+	Vector3() { }
 	Vector3(Type _x, Type _y, Type _z) : x(_x), y(_y), z(_z) { }
 
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ struct Vector3
 	inline Vector3& operator*=(const Vector3& _v)	{ x *= _v.x; y *= _v.y; z *= _v.z; return *this; }
 	inline Vector3& operator*=(Type _f)				{ x *= _f; y *= _f; z *= _f; return *this; }
 	inline Vector3& operator/=(const Vector3& _v)	{ x /= _v.x; y /= _v.y; z /= _v.z; return *this; }
-	inline Vector3& operator/=(Type _f)				{ return this->operator*=(1.0 / _f); }
+	inline Vector3& operator/=(Type _f)				{ x /= _f; y /= _f; z /= _f; return *this; }
 	
 	//------------------------------------------------------------------------------------------------------------------------------------
 	inline Vector3 operator+(const Vector3& _v) const	{ return Vector3(*this).operator+=(_v); }
@@ -45,11 +45,15 @@ struct Vector3
 	inline Vector3 operator/(Vector3::Type _f) const	{ return Vector3(*this).operator/=(_f); }
 
 	friend Vector3 operator*(const Vector3::Type _f, const Vector3& _v) { return _v * _f; }
+	
+	//------------------------------------------------------------------------------------------------------------------------------------
+	static Vector3		Div(const Vector3& _a, const Vector3& _b);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void				Normalize()								{ Type scale = Length(); if (scale > 0) this->operator*=(1.0/scale); }
 	void				Saturate()								{ x = fmax(0,fmin(1,x)); y = fmax(0,fmin(1,y)); z = fmax(0,fmin(1,z)); }
-	void				Floor();
+	void				Floor()									{ x = floor(x); y = floor(y); z = floor(z); }
+	void				Abs()									{ x = fabs(x); y = fabs(y); z = fabs(z); }
 	Type				LengthSq() const						{ return x*x + y*y + z*z; }
 	Type				Length() const							{ return sqrt(LengthSq()); }
 

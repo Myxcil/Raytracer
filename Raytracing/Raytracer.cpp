@@ -11,7 +11,7 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(20),
+	samplesPerPixel(10),
 	maxRaycastDepth(16),
 	backGround(0,0,0),
 	useEnviromentBackground(false),
@@ -170,7 +170,7 @@ void Raytracer::TraceScene(int _threadIndex)
 		Ray ray;
 		for (int x = 0; x < imageWidth && isRunning; ++x)
 		{
-			Color finalColor;
+			Color finalColor(0,0,0);
 			for (int i = 0; i < samplesPerPixel; ++i)
 			{
 				Vector3::Type tx = rcpDimension.x * (Helper::Random() + x);
