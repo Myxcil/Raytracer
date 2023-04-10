@@ -15,7 +15,7 @@ Raytracer::Raytracer() :
 	maxRaycastDepth(16),
 	backGround(0,0,0),
 	useEnviromentBackground(false),
-	maxRenderThreads(0),
+	maxRenderThreads(1),
 	isRunning(false),
 	isFinished(false),
 	renderFinished(nullptr)

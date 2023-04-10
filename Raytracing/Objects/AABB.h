@@ -8,15 +8,6 @@ class AABB
 {
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	enum ClipResult
-	{
-		Inside,
-		Outside,
-		Intersect,
-	};
-
-public:
-	//------------------------------------------------------------------------------------------------------------------------------------
 	AABB() : vMin(0,0,0),vMax(0,0,0),isValid(false) { }
 	AABB(const Vector3& _min, const Vector3& _max) : vMin(_min), vMax(_max),isValid(true) { }
 
@@ -28,9 +19,6 @@ public:
 	void			Merge(const AABB& _other);
 	bool			Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const;
 	void			Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const;
-
-	//------------------------------------------------------------------------------------------------------------------------------------
-	ClipResult		Clip(const AABB& _other) const;
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	const Vector3&	Min() const { return vMin; }

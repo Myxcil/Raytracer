@@ -52,6 +52,9 @@ bool AABB::Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 //----------------------------------------------------------------------------------------------------------------------------------------
 void AABB::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 {
+	if (!Hit(_ray, _tMin, _tMax))
+		return;
+
 	Vector3 rMin = (vMin - _ray.origin) / _ray.direction;
 	Vector3 rMax = (vMax - _ray.origin) / _ray.direction;
 	
@@ -63,7 +66,7 @@ void AABB::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vect
 
 	if (tNear < tFar)
 	{
-		float distance = tNear >= 0 ? tNear : tFar;
+		Vector3::Type distance = tNear >= 0 ? tNear : tFar;
 
 		_hitInfo.isHit = true;
 		_hitInfo.distance = distance;
@@ -71,43 +74,14 @@ void AABB::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vect
 
 		Vector3 boxCenter = (vMin + vMax) / 2.0;
 		Vector3 boxVec = _hitInfo.point - boxCenter;
-		float maxAxis = fmax(fmax(fabs(boxVec.x),fabs(boxVec.y)),fabs(boxVec.z));
+		Vector3::Type maxAxis = fmax(fmax(fabs(boxVec.x),fabs(boxVec.y)),fabs(boxVec.z));
 		boxVec /= maxAxis;
 
-		Vector3 normal;
-		normal.x = floor(max(0,min(1,boxVec.x)) * 1.000001);
-		normal.y = floor(max(0, min(1, boxVec.y)) * 1.000001);
-		normal.z = floor(max(0, min(1, boxVec.z)) * 1.000001);
+		Vector3 normal = boxVec * 1.000001;
+		normal.Floor();
 		normal.Normalize();
+
 		_hitInfo.SetNormal(_ray.direction, normal);
+		_hitInfo.uvw = (_hitInfo.point - boxCenter) / Size();
 	}
-}
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-AABB::ClipResult AABB::Clip(const AABB& _other) const
-{
-	bool	bAllInside = true;
-	bool	bAllOutside = true;
-
-	for (int i = 0; i < 3; ++i)
-	{
-		if (vMin.v[i] >= _other.vMin.v[i] && vMax.v[i] <= _other.vMax.v[i])
-		{
-			bAllOutside = false;
-		}
-		else
-		{
-			bAllInside = false;
-		}
-	}
-	
-	if (bAllOutside)
-	{
-		return ClipResult::Outside;
-	}
-	else if (bAllInside)
-	{
-		return ClipResult::Inside;
-	}
-	return ClipResult::Intersect;
 }

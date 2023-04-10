@@ -48,3 +48,11 @@ UINT32 Vector3::ToRGB(Vector3::Type _scale) const
 	unsigned char b = static_cast<unsigned char>(scaled.z * 255.0f);
 	return TO_RGB(r,g,b);
 }
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+void Vector3::Floor()
+{
+	x = x >= 0 ? floor(x) : ceil(x);
+	y = y >= 0 ? floor(y) : ceil(y);
+	z = z >= 0 ? floor(z) : ceil(z);
+}

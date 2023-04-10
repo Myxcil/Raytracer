@@ -48,6 +48,10 @@ bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3&
 	{
 		scatterDir = _hitInfo.surfaceNormal;
 	}
+	else 
+	{
+		scatterDir.Normalize();
+	}
 	_scattered = Ray(_hitInfo.point, scatterDir);
 
 	return true;
