@@ -40,9 +40,6 @@ void World::Init(Camera& _camera, bool& _useEnviromentLight)
 	//InitTestscene(_camera, _useEnviromentLight);
 	InitTeapot(_camera, _useEnviromentLight);
 
-	if (worldObjects.empty())
-		return;
-
 	if (useAABB)
 	{
 		TraceableObjects objectsWithAABB;
@@ -57,7 +54,10 @@ void World::Init(Camera& _camera, bool& _useEnviromentLight)
 				singleObjects.push_back(worldObjects[i]);
 			}
 		}
-		root = new SceneNode(objectsWithAABB, 0, objectsWithAABB.size(), 0);
+		if (objectsWithAABB.size() > 0)
+		{
+			root = new SceneNode(objectsWithAABB, 0, objectsWithAABB.size(), 0);
+		}
 	}
 	else
 	{
@@ -94,6 +94,7 @@ void World::InitCornellBox(Camera& _camera, bool& _useEnviromentLight)
 	worldObjects.push_back(new Quad(Vector3(0, 0.99, 0), Vector3(0, -1, 0), Vector3(0.25, 0.25, 0), lightWhite));
 
 	// test objects
+	/*
 	Material* matGlass = new DielectricMaterial(1.5f);
 	worldObjects.push_back(new Sphere(Vector3(0, -0.75, -0.5), 0.25, matGlass));
 
@@ -102,6 +103,10 @@ void World::InitCornellBox(Camera& _camera, bool& _useEnviromentLight)
 
 	Material* matMetal = new MetalMaterial(&ConstantColor::WHITE, 0);
 	worldObjects.push_back(new Sphere(Vector3(0.5, -0.75, 0.25), 0.25, matMetal));
+	*/
+
+	Material* matBlue = new LambertMaterial(&ConstantColor::BLUE);
+	worldObjects.push_back(new TriangleMesh(Vector3(0, -1.0, 0), _T("Data/teapot.obj"), 0.25f, matBlue));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -141,14 +146,9 @@ void World::InitTeapot(Camera& _camera, bool& _useEnviromentLight)
 	Material* matGrey = new LambertMaterial(&ConstantColor::GREY);
 	worldObjects.push_back(new InfinitePlane(Vector3(0, 0, 0), Vector3(0, 1, 0), true, matGrey));
 
-	Material* matWhite = new LambertMaterial(&ConstantColor::WHITE);
-	worldObjects.push_back(new TriangleMesh(Vector3(0,0,0), _T("Data/teapot.obj"), matWhite));
-
-	/*
-	Texture* checkerboard = new CheckerTexture(&ConstantColor::BLACK, &ConstantColor::WHITE, Vector3(4, 4, 4));
-	Material* matCheckerboard = new LambertMaterial(checkerboard);
-	worldObjects.push_back(new Box(Vector3(0,1,0), Vector3(1,1,1), matCheckerboard));
-	*/
+	Material* matGreen = new LambertMaterial(&ConstantColor::GREEN);
+	worldObjects.push_back(new TriangleMesh(Vector3(0,0,0), _T("Data/teapot.obj"), 1.0f, matGreen));
+	//worldObjects.push_back(new TriangleMesh(Vector3(0,2,0), nullptr, matGreen));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

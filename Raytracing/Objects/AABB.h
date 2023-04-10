@@ -24,6 +24,7 @@ public:
 	const Vector3&	Min() const { return vMin; }
 	const Vector3&	Max() const { return vMax; }
 	Vector3			Size() const { return vMax - vMin; }
+	void			EnsureMinSize(Vector3::Type _minSize);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	static AABB		Merge(const AABB& _a, const AABB& _b)	{ AABB merged(_a); merged.Merge(_b); return merged; }

@@ -96,3 +96,25 @@ void AABB::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vect
 		_hitInfo.SetNormal(_ray.direction, boxVec);
 	}
 }
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+void AABB::EnsureMinSize(Vector3::Type _minSize)
+{
+	Vector3 size = Size();
+	Vector3::Type halfMin = 0.5 + _minSize;
+	if (size.x < _minSize)
+	{
+		vMin.x -= halfMin;
+		vMax.x += halfMin;
+	}
+	if (size.y < _minSize)
+	{
+		vMin.y -= halfMin;
+		vMax.y += halfMin;
+	}
+	if (size.z < _minSize)
+	{
+		vMin.z -= halfMin;
+		vMax.z += halfMin;
+	}
+}
