@@ -3,7 +3,6 @@
 #include "World.h"
 #include "Objects/TraceableObject.h"
 #include "Material.h"
-#include "PDF.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 Raytracer::Raytracer() :
@@ -12,9 +11,10 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(100),
-	maxRaycastDepth(8),
+	samplesPerPixel(10),
+	maxRaycastDepth(4),
 	backGround(0,0,0),
+	useEnviromentBackground(false),
 	maxRenderThreads(0),
 	isRunning(false),
 	isFinished(false),
@@ -27,7 +27,7 @@ Raytracer::Raytracer() :
 	timeStamp.QuadPart = 0;
 
 	world = new World();
-	world->Init(camera, backGround);
+	world->Init(camera, useEnviromentBackground);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -95,8 +95,6 @@ void Raytracer::Run()
 
 	isRunning = true;
 	isFinished = false;
-
-	lightPDF = world->GetLightsPDF();
 
 	unsigned int numCores = std::thread::hardware_concurrency();
 	unsigned int numThreads = max(1,numCores - 1);
@@ -180,7 +178,7 @@ void Raytracer::TraceScene(int _threadIndex)
 
 				camera.CalculateRay(tx, ty, ray);
 
-				finalColor += EvaluateColor(ray, maxRaycastDepth);
+				finalColor += EvaluateColor(ray, camera.GetNearPlane(), FLT_MAX, maxRaycastDepth);
 			}
 
 			SetPixel(x, y, finalColor);
@@ -201,52 +199,43 @@ void Raytracer::TraceScene(int _threadIndex)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-Color Raytracer::EvaluateColor(const Ray& _ray, int depth)
+Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth)
 {
 	if (depth <= 0)
 		return Color(0,0,0);
 
 	HitInfo hitInfo;
-	world->Raycast(hitInfo, _ray, 0.001, DBL_MAX);
+	world->Raycast(hitInfo, _ray, _tMin, _tMax);
 	if (!hitInfo.isHit)
-		return Color(0,0,0);
+	{
+		return SampleEnviroment(_ray.direction);
+	}
 
-	Color emitted = hitInfo.material->Emitted(_ray, hitInfo);
+	Color emitted = hitInfo.material->Emitted(hitInfo.uvw, hitInfo.point);
 
-	ScatterInfo scatterInfo;
-	if (!hitInfo.material->Scatter(_ray, hitInfo, scatterInfo))
+	Ray scattered;
+	Color attenuation;
+	if (!hitInfo.material->Scatter(_ray, hitInfo, attenuation, scattered))
 		return emitted;
 
-	lightPDF->Set(hitInfo.point);
-
-	Ray scatterRay(hitInfo.point, GeneratePDFDirection(scatterInfo.cosinePDF));
-	Vector3::Type pdfValue = GetPDFValue(scatterInfo.cosinePDF, scatterRay.direction);
-	pdfValue = max(0.000001, pdfValue);
-
-	Vector3 result = scatterInfo.attenuation;
-	result *= hitInfo.material->ScatteringPDF(_ray, hitInfo, scatterRay);
-	result *= EvaluateColor(scatterRay, depth-1) / pdfValue;
-	result += emitted;
-
-	return result;
+	return emitted + attenuation * EvaluateColor(scattered, 0.001, DBL_MAX, depth - 1);;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-Vector3::Type Raytracer::GetPDFValue(const PDF& _pdf, const Vector3& _direction) const
-{
-	return 0.5 * (_pdf.GetValue(_direction) + lightPDF->GetValue(_direction));
-}
+const Color colorA = Color(1.0, 1.0, 1.0);
+const Color colorB = Color(0.5, 0.7, 1.0);
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-Vector3 Raytracer::GeneratePDFDirection(const PDF& _pdf) const
+Color Raytracer::SampleEnviroment(const Vector3& _rayDirection)
 {
-	if (Helper::Random() < 0.5)
+	if (useEnviromentBackground)
 	{
-		return _pdf.Generate();
+		Vector3::Type t = 0.5 + 0.5 * _rayDirection.y;
+		return Color::Lerp(colorA, colorB, t);
 	}
 	else
 	{
-		return lightPDF->Generate();
+		return backGround;
 	}
 }
 
