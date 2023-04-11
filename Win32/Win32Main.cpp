@@ -128,10 +128,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    RECT rect;
    ZeroMemory(&rect,sizeof(rect));
+#ifdef _DEBUG
    rect.right = 640;
    rect.bottom = 360;
-   //rect.right = 1280;
-   //rect.bottom = 720;
+#else
+   rect.right = 1280;
+   rect.bottom = 720;
+#endif
    AdjustWindowRect(&rect, dwStyle, FALSE);
 
    int width = (rect.right - rect.left);
