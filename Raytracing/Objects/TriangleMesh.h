@@ -32,16 +32,6 @@ private:
 		Vector3::Type	dot12;
 	};
 
-	//------------------------------------------------------------------------------------------------------------------------------------
-	struct Node
-	{
-		AABB			aabb;
-		Node*			child[2];
-		int				numTris;
-		int*			triangles;
-	};
-	Node* root;
-
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			LoadMeshFromFile(const TCHAR* _filename, std::vector<Vector3>& _positions, std::vector<int>& _indices);
@@ -50,9 +40,6 @@ private:
 	bool			IntersectTri(HitInfo& _hitInfo, const Ray& _ray, const Triangle& _tri, Vector3::Type _tMin, Vector3::Type _tMax) const;
 	void			GetTriBarycentric(const Triangle& _tri, const Vector3& _p, Vector3& _result) const;
 	Vector3			CalculateNormal(const Triangle& _tri, const Vector3 &_weight) const;
-
-	//------------------------------------------------------------------------------------------------------------------------------------
-	Node*			CreateNode(std::vector<int> triangles);
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------

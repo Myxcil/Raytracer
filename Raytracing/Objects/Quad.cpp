@@ -55,30 +55,3 @@ void Quad::ConstructAABB()
 		aabb.Merge(points[i]);
 	}
 }
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-Vector3::Type Quad::CalcPDFValue(const Vector3& _origin, const Vector3& _direction) const
-{
-	Ray ray(_origin, _direction);
-	HitInfo hitInfo;
-	Raycast(hitInfo, ray, 0.001, DBL_MAX);
-	if (!hitInfo.isHit)
-		return 0;
-
-	Vector3::Type area = size.x * size.y;
-	Vector3::Type distSq = hitInfo.distance * hitInfo.distance;
-	Vector3::Type cosine = fabs(Vector3::Dot(_direction, hitInfo.surfaceNormal));
-
-	return distSq / (cosine * area);
-}
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-Vector3 Quad::GetRandomDirection(const Vector3& _origin) const
-{
-	Vector3::Type tu = Helper::Random(-1,1);
-	Vector3::Type tv = Helper::Random(-1,1);
-	Vector3 randomDireciton = (center + tu * u + tv * v) - _origin;
-	randomDireciton.Normalize();
-	return randomDireciton;
-}
-

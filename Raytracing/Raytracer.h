@@ -7,7 +7,6 @@
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 class World;
-class PDF;
 struct HitInfo;
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -38,9 +37,8 @@ private:
 	int				samplesPerPixel;
 	int				maxRaycastDepth;
 	Color			backGround;
-	
+	bool			useEnviromentBackground;
 	World*			world;
-	PDF*			lightPDF;
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	unsigned int	maxRenderThreads;
@@ -67,9 +65,6 @@ private:
 	
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			TraceScene(int _threadIndex);
-	Color			EvaluateColor(const Ray& _ray, int depth);
-	
-	//------------------------------------------------------------------------------------------------------------------------------------
-	Vector3::Type	GetPDFValue(const PDF& _pdf, const Vector3& _direction) const;
-	Vector3			GeneratePDFDirection(const PDF& _pdf) const;
+	Color			EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth);
+	Color			SampleEnviroment(const Vector3& _rayDirection);
 };

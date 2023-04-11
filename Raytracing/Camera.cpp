@@ -11,7 +11,7 @@ Camera::Camera() :
 	nearPlaneWidth(1.0),
 	nearPlaneHeight(1.0)
 {
-	Helper::ConstructBasis(direction, up, right);
+	UpdateTransform();
 	UpdateInternals();
 }
 
@@ -25,7 +25,7 @@ void Camera::LookAt(const Vector3& _worldPosition)
 {
 	direction = _worldPosition - position;
 	direction.Normalize();
-	Helper::ConstructBasis(direction, up, right);
+	UpdateTransform();
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -43,6 +43,15 @@ void Camera::CalculateRay(Vector3::Type _tx, Vector3::Type _ty, Ray& _ray) const
 
 	_ray.direction = _ray.origin - position;
 	_ray.direction.Normalize();
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+void Camera::UpdateTransform()
+{
+	up = Vector3(0, 1, 0);
+	right = Vector3::Cross(up, direction);
+	right.Normalize();
+	up = Vector3::Cross(direction, right);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

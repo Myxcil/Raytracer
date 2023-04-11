@@ -39,22 +39,24 @@ LambertMaterial::LambertMaterial(const Texture* _albedo) :
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const
+bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const
 {
-	_scatterInfo.isSpecular = false;
-	_scatterInfo.attenuation = SampleAlbedo(_hitInfo);
-	_scatterInfo.cosinePDF.Set(_hitInfo.surfaceNormal);
+	_attenuation = SampleAlbedo(_hitInfo);
+
+	Vector3 scatterDir = _hitInfo.surfaceNormal + Helper::RandomUnitHemisphere(_hitInfo.surfaceNormal);
+	if (scatterDir.NearZero())
+	{
+		scatterDir = _hitInfo.surfaceNormal;
+	}
+	else 
+	{
+		scatterDir.Normalize();
+	}
+	_scattered = Ray(_hitInfo.point, scatterDir);
+
 	return true;
 }
 
-//----------------------------------------------------------------------------------------------------------------------------------------
-Vector3::Type LambertMaterial::ScatteringPDF(const Ray& _ray, const HitInfo& _hitInfo, const Ray& _scattered) const
-{
-	Vector3::Type cosine = Vector3::Dot(_hitInfo.surfaceNormal, _scattered.direction);
-	return cosine < 0 ? 0 : cosine * M_1_PI;
-}
-
-/*
 //----------------------------------------------------------------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -119,7 +121,6 @@ Vector3::Type DielectricMaterial::CalcReflectance(Vector3::Type _cosine, Vector3
 	r0 = r0 * r0;
 	return r0 + (1.0 - r0) * pow((1.0 - _cosine), 5.0);
 }
-*/
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 //

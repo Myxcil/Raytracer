@@ -90,20 +90,6 @@ struct Ray
 //------------------------------------------------------------------------------------------------------------------------------------
 struct Helper
 {
-	//--------------------------------------------------------------------------------------------------------------------------------
-	static void ConstructBasis(const Vector3& _direction, Vector3& _up, Vector3& _right)
-	{
-		_up = Vector3(0, 1, 0);
-		if (fabs(Vector3::Dot(_up, _direction)) > 0.999)
-		{
-			_up = Vector3(0,0,1);
-		}
-		_right = Vector3::Cross(_up, _direction);
-		_right.Normalize();
-		_up = Vector3::Cross(_direction, _right);
-	}
-
-
 	//------------------------------------------------------------------------------------------------------------------------------------
 	// random value [0,1[
 	static Vector3::Type Random()
@@ -146,34 +132,6 @@ struct Helper
 	}
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	static Vector3 RandomCosineDirection()
-	{
-		Vector3::Type r1 = Random();
-		Vector3::Type r2 = Random();
-		Vector3::Type z = sqrt(1.0 - r2);
-		
-		Vector3::Type phi = 2.0 * M_PI * r1;
-		Vector3::Type x = cos(phi) * sqrt(r2);
-		Vector3::Type y = sin(phi) * sqrt(r2);
-
-		return Vector3(x,y,z);
-	}
-
-	//------------------------------------------------------------------------------------------------------------------------------------
-	static Vector3 RandomToSphere(Vector3::Type _radius, Vector3::Type _distanceSq)
-	{
-		Vector3::Type r1 = Random();
-		Vector3::Type r2 = Random();
-		Vector3::Type z = 1 + r2 * (sqrt(1.0 - _radius*_radius/_distanceSq) - 1);
-
-		Vector3::Type phi = 2.0 * M_PI * r1;
-		Vector3::Type x = cos(phi) * sqrt(1 - z*z);
-		Vector3::Type y = sin(phi) * sqrt(1 - z*z);
-
-		return Vector3(x,y,z);
-	}
-
-	//------------------------------------------------------------------------------------------------------------------------------------
 	static void Log(const TCHAR* _szFormat, ...)
 	{
 		TCHAR szBuffer[1024];
@@ -182,29 +140,5 @@ struct Helper
 		_vsnwprintf_s(szBuffer, sizeof(szBuffer), _szFormat, arg);
 		va_end(arg);
 		OutputDebugString(szBuffer);
-	}
-};
-
-//------------------------------------------------------------------------------------------------------------------------------------
-struct ONB
-{
-	//------------------------------------------------------------------------------------------------------------------------------------
-	Vector3 right, up, forward;
-	
-	//------------------------------------------------------------------------------------------------------------------------------------
-	ONB() { }
-	ONB(const Vector3& _direction) { Set(_direction); }
-
-	//------------------------------------------------------------------------------------------------------------------------------------
-	void Set(const Vector3& _direction)
-	{
-		forward = _direction;
-		Helper::ConstructBasis(forward, up, right);
-	}
-
-	//------------------------------------------------------------------------------------------------------------------------------------
-	Vector3 Transform(const Vector3& _p) const
-	{
-		return _p.x * right + _p.y * up + _p.z * forward;
 	}
 };

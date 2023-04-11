@@ -72,9 +72,6 @@
     <ClInclude Include="Raytracing\Objects\TriangleMesh.h">
       <Filter>Raytracing\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Raytracing\PDF.h">
-      <Filter>Raytracing</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Raytracer.rc">
@@ -135,9 +132,6 @@
     </ClCompile>
     <ClCompile Include="Raytracing\Objects\TriangleMesh.cpp">
       <Filter>Raytracing\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Raytracing\PDF.cpp">
-      <Filter>Raytracing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

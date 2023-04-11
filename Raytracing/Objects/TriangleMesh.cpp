@@ -4,8 +4,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 TriangleMesh::TriangleMesh(const Vector3& _center, const TCHAR* _filename, Vector3::Type _scale, Material* _material) :
-	TraceableObject(_center, _material),
-	root(nullptr)
+	TraceableObject(_center, _material)
 {
 	std::vector<Vector3> positions;
 	std::vector<int> indices;
@@ -23,16 +22,7 @@ TriangleMesh::TriangleMesh(const Vector3& _center, const TCHAR* _filename, Vecto
 		indices.push_back(2);
 		indices.push_back(3);
 	}
-
 	BuildMesh(positions, indices, _scale);
-
-	std::vector<int> triangleIndices;
-	for (size_t i = 0; i < triangles.size(); ++i)
-	{
-		triangleIndices.push_back((int)i);
-	}
-
-	root = CreateNode(triangleIndices);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -207,10 +197,4 @@ Vector3 TriangleMesh::CalculateNormal(const Triangle& _tri, const Vector3& _weig
 	}
 	n.Normalize();
 	return n;
-}
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-TriangleMesh::Node* TriangleMesh::CreateNode(std::vector<int> triangles)
-{
-	return nullptr;
 }

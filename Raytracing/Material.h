@@ -5,18 +5,6 @@ struct HitInfo;
 class Texture;
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-#include "PDF.h"
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-struct ScatterInfo
-{
-	Vector3		specularRay;
-	bool		isSpecular;
-	Color		attenuation;
-	CosinePDF	cosinePDF;
-};
-
-//----------------------------------------------------------------------------------------------------------------------------------------
 class Material
 {
 public:
@@ -24,20 +12,17 @@ public:
 	virtual ~Material();
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	void					AddRef()			{ ++numRefs; }
-	void					Release();
+	void			AddRef()			{ ++numRefs; }
+	void			Release();
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	virtual Color			Emitted(const Ray& _ray, const HitInfo& _hitInfo) const { return Color(0, 0, 0); }
-	virtual bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const { return false;}
-	virtual Vector3::Type	ScatteringPDF(const Ray& _ray, const HitInfo& _hitInfo, const Ray& _scattered) const { return 0; }
-
-	virtual bool			IsEmissive() const { return false; }
+	virtual bool	Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const = 0;
+	virtual Color	Emitted(const Vector3& _uvw, const Vector3& _point) const { return Color(0,0,0); }
 
 protected:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	Material(const Texture* _albedo);
-	Color					SampleAlbedo(const HitInfo& _hitInfo) const;
+	Color			SampleAlbedo(const HitInfo& _hitInfo) const;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -53,11 +38,9 @@ class LambertMaterial : public Material
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	LambertMaterial(const Texture* _albedo);
-	bool					Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const override;
-	Vector3::Type			ScatteringPDF(const Ray& _ray, const HitInfo& _hitInfo, const Ray& _scattered) const override;
+	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const override;
 };
 
-/*
 //----------------------------------------------------------------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -91,7 +74,6 @@ private:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	Vector3::Type	refractionIndex;
 };
-*/
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 //
@@ -103,10 +85,8 @@ public:
 	DiffuseLight(const Color& _emit, bool _visible = true);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	Color			Emitted(const Ray& _ray, const HitInfo& _hitInfo) const override { return emit; }
-
-	//------------------------------------------------------------------------------------------------------------------------------------
-	bool			IsEmissive() const override { return true; }
+	bool	Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const override { return false; }
+	Color	Emitted(const Vector3& _uvw, const Vector3& _point) const override { return emit; }
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
