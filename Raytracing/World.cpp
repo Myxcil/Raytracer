@@ -105,7 +105,7 @@ void World::InitCornellBox(Camera& _camera, Color& _backGround)
 	worldObjects.push_back(new Quad(Vector3(0, 0.99, 0), Vector3(0, -1, 0), Vector3(0.25, 0.25, 0), lightWhite));
 
 	// test objects
-	/**
+	/**/
 	Material* matYellow = new LambertMaterial(&ConstantColor::YELLOW);
 	worldObjects.push_back(new Sphere(Vector3(0, -0.75, -0.5), 0.25, matYellow));
 
@@ -114,7 +114,6 @@ void World::InitCornellBox(Camera& _camera, Color& _backGround)
 
 	Material* matGrey = new LambertMaterial(&ConstantColor::GREY);
 	worldObjects.push_back(new Sphere(Vector3(0.5, -0.75, 0.25), 0.25, matGrey));
-	/**/
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

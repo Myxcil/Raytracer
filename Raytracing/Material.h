@@ -100,10 +100,10 @@ class DiffuseLight : public Material
 {
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	DiffuseLight(const Color& _emit);
+	DiffuseLight(const Color& _emit, bool _visible = true);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	Color			Emitted(const Ray& _ray, const HitInfo& _hitInfo) const override { return _hitInfo.frontFace ? emit : Color(0,0,0); }
+	Color			Emitted(const Ray& _ray, const HitInfo& _hitInfo) const override { return emit; }
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	bool			IsEmissive() const override { return true; }
@@ -111,4 +111,5 @@ public:
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	Color	emit;
+	bool	visible;
 };

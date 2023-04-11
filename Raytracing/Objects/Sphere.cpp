@@ -96,5 +96,6 @@ Vector3 Sphere::GetRandomDirection(const Vector3& _origin) const
 {
 	Vector3 direction = center - _origin;
 	Vector3::Type distSq = direction.LengthSq();
+
 	return ONB(direction).Transform(Helper::RandomToSphere(radius,distSq));
 }

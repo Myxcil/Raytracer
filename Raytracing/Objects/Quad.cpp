@@ -77,9 +77,8 @@ Vector3 Quad::GetRandomDirection(const Vector3& _origin) const
 {
 	Vector3::Type tu = Helper::Random(-1,1);
 	Vector3::Type tv = Helper::Random(-1,1);
-	
-	Vector3 randomDir = (center + tu * u + tv * v);
-	randomDir -= _origin;
-	return randomDir;
+	Vector3 randomDireciton = (center + tu * u + tv * v) - _origin;
+	randomDireciton.Normalize();
+	return randomDireciton;
 }
 
