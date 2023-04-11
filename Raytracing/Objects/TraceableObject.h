@@ -4,8 +4,8 @@
 #include <vector>
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-class TraceableObject;
 class Material;
+class TraceableObject;
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 struct HitInfo
@@ -41,16 +41,21 @@ public:
 	virtual ~TraceableObject();
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	bool			Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const;
-	virtual void	Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const = 0;
+	bool					Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const;
+	virtual void			Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const = 0;
 	
 	//------------------------------------------------------------------------------------------------------------------------------------
-	const AABB&		GetAABB() const { return aabb; }
+	virtual Vector3::Type	CalcPDFValue(const Vector3& _origin, const Vector3& _direction) const	{ return 0;}
+	virtual Vector3			GetRandomDirection(const Vector3& _origin) const						{ return Vector3(1,0,0); }
+
+	//------------------------------------------------------------------------------------------------------------------------------------
+	const AABB&				GetAABB() const { return aabb; }
+	bool					IsEmissive() const;
 
 protected:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	TraceableObject(const Vector3& _center, Material* _material);
-	virtual void	OnHit(HitInfo& _hitInfo) const;
+	virtual void			OnHit(HitInfo& _hitInfo) const;
 
 protected:
 	//------------------------------------------------------------------------------------------------------------------------------------
