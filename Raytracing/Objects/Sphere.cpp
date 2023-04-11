@@ -71,6 +71,4 @@ bool Sphere::Intersect(const Ray& _ray, const Vector3& _center, Vector3::Type _r
 	Vector3::Type sqrt_d = sqrt(d);
 	_t0 = (-half_b - sqrt_d) / a;
 	_t1 = (-half_b + sqrt_d) / a;;
-
-	return true;
 }
