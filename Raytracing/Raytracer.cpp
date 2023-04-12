@@ -11,10 +11,8 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(100),
-	maxRaycastDepth(4),
-	backGround(0,0,0),
-	useEnviromentBackground(false),
+	samplesPerPixel(1000),
+	maxRaycastDepth(8),
 	maxRenderThreads(0),
 	isRunning(false),
 	isFinished(false),
@@ -27,7 +25,7 @@ Raytracer::Raytracer() :
 	timeStamp.QuadPart = 0;
 
 	world = new World();
-	world->Init(camera, useEnviromentBackground);
+	world->Init(camera);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -178,7 +176,7 @@ void Raytracer::TraceScene(int _threadIndex)
 
 				camera.CalculateRay(tx, ty, ray);
 
-				finalColor += EvaluateColor(ray, camera.GetNearPlane(), FLT_MAX, maxRaycastDepth);
+				finalColor += EvaluateColor(ray, 1.0, camera.GetNearPlane(), FLT_MAX, maxRaycastDepth);
 			}
 
 			SetPixel(x, y, finalColor);
@@ -199,44 +197,30 @@ void Raytracer::TraceScene(int _threadIndex)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth)
+Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _weight, Vector3::Type _tMin, Vector3::Type _tMax, int depth)
 {
 	if (depth <= 0)
+		return Color(0,0,0);
+
+	if (_weight <= 0.0001)
 		return Color(0,0,0);
 
 	HitInfo hitInfo;
 	world->Raycast(hitInfo, _ray, _tMin, _tMax);
 	if (!hitInfo.isHit)
 	{
-		return SampleEnviroment(_ray.direction);
+		return world->SampleEnviroment(_ray.direction);
 	}
 
 	Color emitted = hitInfo.material->Emitted(hitInfo.uvw, hitInfo.point);
 
 	Ray scattered;
 	Color attenuation;
-	if (!hitInfo.material->Scatter(_ray, hitInfo, attenuation, scattered))
-		return emitted;
+	Vector3::Type reflectance;
+	if (!hitInfo.material->Scatter(_ray, hitInfo, attenuation, scattered, reflectance))
+		return reflectance * emitted;
 
-	return emitted + attenuation * EvaluateColor(scattered, 0.001, DBL_MAX, depth - 1);;
-}
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-const Color colorA = Color(1.0, 1.0, 1.0);
-const Color colorB = Color(0.5, 0.7, 1.0);
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-Color Raytracer::SampleEnviroment(const Vector3& _rayDirection)
-{
-	if (useEnviromentBackground)
-	{
-		Vector3::Type t = 0.5 + 0.5 * _rayDirection.y;
-		return Color::Lerp(colorA, colorB, t);
-	}
-	else
-	{
-		return backGround;
-	}
+	return emitted + attenuation * EvaluateColor(scattered, _weight * reflectance, 0.001, DBL_MAX, depth - 1);;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

@@ -17,14 +17,16 @@ public:
 	~World();
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	void				Init(Camera& _camera, bool& _useEnviromentLight);
+	void				Init(Camera& _camera);
 	void				Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax);
+	Color				SampleEnviroment(const Vector3& _rayDirection) const;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	void				InitCornellBox(Camera& _camera, bool& _useEnviromentLight);
-	void				InitTestscene(Camera& _camera, bool& _useEnviromentLight);
-	void				InitTeapot(Camera& _camera, bool& _useEnviromentLight);
+	void				InitCornellBox(Camera& _camera);
+	void				InitTestscene(Camera& _camera);
+	void				InitTeapot(Camera& _camera);
+
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -32,4 +34,7 @@ private:
 	bool				useAABB;
 	const SceneNode*	root;
 	TraceableObjects	singleObjects;
+
+	Color				backGround;
+	bool				useEnviromentBackground;
 };

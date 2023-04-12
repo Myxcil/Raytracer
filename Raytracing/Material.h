@@ -16,7 +16,7 @@ public:
 	void			Release();
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	virtual bool	Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const = 0;
+	virtual bool	Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered, Vector3::Type& _reflectance) const = 0;
 	virtual Color	Emitted(const Vector3& _uvw, const Vector3& _point) const { return Color(0,0,0); }
 
 protected:
@@ -38,7 +38,7 @@ class LambertMaterial : public Material
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	LambertMaterial(const Texture* _albedo);
-	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const override;
+	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered, Vector3::Type& _reflectance) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ class MetalMaterial : public Material
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	MetalMaterial(const Texture* _albedo, Vector3::Type _fuzziness);
-	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const override;
+	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered, Vector3::Type& _reflectance) const override;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ class DielectricMaterial : public Material
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	DielectricMaterial(Vector3::Type _refractionIndex);
-	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const override;
+	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered, Vector3::Type& _reflectance) const override;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ public:
 	DiffuseLight(const Color& _emit, bool _visible = true);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	bool	Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const override { return false; }
+	bool	Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered, Vector3::Type& _reflectance) const override { return false; }
 	Color	Emitted(const Vector3& _uvw, const Vector3& _point) const override { return emit; }
 
 private:

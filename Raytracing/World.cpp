@@ -17,7 +17,9 @@
 //----------------------------------------------------------------------------------------------------------------------------------------
 World::World() :
 	useAABB(true),
-	root(nullptr)
+	root(nullptr),
+	useEnviromentBackground(false),
+	backGround(0,0,0)
 {
 }
 
@@ -25,7 +27,6 @@ World::World() :
 World::~World()
 {
 	singleObjects.clear();
-
 	for (size_t i = 0; i < worldObjects.size(); ++i)
 	{
 		delete worldObjects[i];
@@ -34,11 +35,11 @@ World::~World()
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void World::Init(Camera& _camera, bool& _useEnviromentLight)
+void World::Init(Camera& _camera)
 {
-	InitCornellBox(_camera, _useEnviromentLight);
-	//InitTestscene(_camera, _useEnviromentLight);
-	//InitTeapot(_camera, _useEnviromentLight);
+	InitCornellBox(_camera);
+	//InitTestscene(_camera);
+	//InitTeapot(_camera);
 
 	if (useAABB)
 	{
@@ -69,9 +70,9 @@ void World::Init(Camera& _camera, bool& _useEnviromentLight)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void World::InitCornellBox(Camera& _camera, bool& _useEnviromentLight)
+void World::InitCornellBox(Camera& _camera)
 {
-	_useEnviromentLight = false;
+	useEnviromentBackground = false;
 
 	_camera.SetPosition(Vector3(0, 0.0, -3));
 
@@ -105,9 +106,9 @@ void World::InitCornellBox(Camera& _camera, bool& _useEnviromentLight)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void World::InitTestscene(Camera& _camera, bool& _useEnviromentLight)
+void World::InitTestscene(Camera& _camera)
 {
-	_useEnviromentLight = true;
+	useEnviromentBackground = true;
 
 	_camera.SetPosition(Vector3(5, 4, -5));
 	_camera.LookAt(Vector3(0, 1, 0));
@@ -131,9 +132,9 @@ void World::InitTestscene(Camera& _camera, bool& _useEnviromentLight)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void World::InitTeapot(Camera& _camera, bool& _useEnviromentLight)
+void World::InitTeapot(Camera& _camera)
 {
-	_useEnviromentLight = true;
+	useEnviromentBackground = true;
 
 	_camera.SetPosition(Vector3(3, 4, -6));
 	_camera.LookAt(Vector3(0, 1, 0));
@@ -160,5 +161,23 @@ void World::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vec
 		{
 			_hitInfo = singleHit;
 		}
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+const Color colorA = Color(1.0, 1.0, 1.0);
+const Color colorB = Color(0.5, 0.7, 1.0);
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+Color World::SampleEnviroment(const Vector3& _rayDirection) const
+{
+	if (useEnviromentBackground)
+	{
+		Vector3::Type t = 0.5 + 0.5 * _rayDirection.y;
+		return Color::Lerp(colorA, colorB, t);
+	}
+	else
+	{
+		return backGround;
 	}
 }

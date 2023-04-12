@@ -39,7 +39,7 @@ LambertMaterial::LambertMaterial(const Texture* _albedo) :
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const
+bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered, Vector3::Type& _reflectance) const
 {
 	_attenuation = SampleAlbedo(_hitInfo);
 
@@ -53,6 +53,7 @@ bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3&
 		scatterDir.Normalize();
 	}
 	_scattered = Ray(_hitInfo.point, scatterDir);
+	_reflectance = 0.5f;
 
 	return true;
 }
@@ -67,7 +68,7 @@ MetalMaterial::MetalMaterial(const Texture* _albedo, Vector3::Type _fuzziness) :
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool MetalMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const
+bool MetalMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered, Vector3::Type& _reflectance) const
 {
 	_attenuation = SampleAlbedo(_hitInfo);
 
@@ -75,6 +76,7 @@ bool MetalMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _
 	reflected = Vector3::Reflect(_ray.direction, _hitInfo.surfaceNormal) + fuzziness * Helper::RandomUnitSphere();
 
 	_scattered = Ray(_hitInfo.point, reflected);
+	_reflectance = fmax(0.5, 1.0f - fuzziness);
 
 	return Vector3::Dot(reflected, _hitInfo.surfaceNormal) > 0;
 }
@@ -89,7 +91,7 @@ DielectricMaterial::DielectricMaterial(Vector3::Type _refractionIndex) :
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool DielectricMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered) const
+bool DielectricMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered, Vector3::Type& _reflectance) const
 {
 	_attenuation = Color(1,1,1);
 
@@ -100,7 +102,8 @@ bool DielectricMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vecto
 
 	Vector3 direction;
 	bool cantRefract = refractionRatio * sin_theta > 1.0;
-	if (cantRefract || CalcReflectance(cos_theta, refractionRatio) > Helper::Random())
+	_reflectance = CalcReflectance(cos_theta, refractionRatio);
+	if (cantRefract || _reflectance > Helper::Random())
 	{
 		direction = Vector3::Reflect(_ray.direction, _hitInfo.surfaceNormal);
 	}
@@ -110,7 +113,7 @@ bool DielectricMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vecto
 	}
 	
 	_scattered = Ray(_hitInfo.point, direction);
-
+	
 	return true;
 }
 
