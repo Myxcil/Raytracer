@@ -10,7 +10,7 @@ and
 https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection.html
 
 Current features:
-- infinite plane, quad, sphere
+- infinite plane, quad, sphere, box and trianglemesh (slow AF)
 - materials: lambert, metal, dielectric and diffuse-light
-- multithreaded raytracing (# of threads = imageHeight / (numCores-2))
+- multithreaded raytracing, next unhandled scanline is pulled from vector
 - NO optimizations :D
