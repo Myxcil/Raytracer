@@ -11,9 +11,8 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(1000),
+	samplesPerPixel(100),
 	maxRaycastDepth(0),
-	terminationThreshold(0.9),
 	maxRenderThreads(0),
 	isRunning(false),
 	isFinished(false),
@@ -178,7 +177,7 @@ void Raytracer::TraceScene(int _threadIndex)
 
 				camera.CalculateRay(tx, ty, ray);
 
-				finalColor += EvaluateColor(ray, camera.GetNearPlane(), DBL_MAX, 1);
+				finalColor += EvaluateColor(ray, camera.GetNearPlane(), DBL_MAX, 1, Color(1,1,1));
 			}
 
 			SetPixel(x, y, finalColor);
@@ -199,7 +198,7 @@ void Raytracer::TraceScene(int _threadIndex)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth)
+Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth, Vector3 throughput)
 {
 	maxRaycastDepth = max(maxRaycastDepth, depth);
 
@@ -218,7 +217,7 @@ Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Ty
 		return emitted;
 	}
 
-	Vector3::Type threshold = pow(terminationThreshold, depth);
+	Vector3::Type threshold = fmin(0.999,fmax(fmax(throughput.x,throughput.y),throughput.z));
 	if (Helper::Random() >= threshold)
 	{
 		return emitted;
@@ -227,11 +226,13 @@ Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Ty
 	Ray nextRay = Ray(hitInfo.point, scatterInfo.direction);
 	nextRay.origin += nextRay.direction * 0.000001;
 
-	Color result = emitted + scatterInfo.attenuation * M_1_PI;
-	result *= EvaluateColor(nextRay , 0.001, DBL_MAX, depth + 1);
-	result *= Vector3::Dot(hitInfo.surfaceNormal, scatterInfo.direction);
-	result /= scatterInfo.probability * terminationThreshold;
-	return result;
+	Vector3::Type cosTheta = Vector3::Dot(hitInfo.surfaceNormal, scatterInfo.direction);
+	Vector3::Type weight = 1.0 / (scatterInfo.probability * threshold);
+	Vector3 brdf = scatterInfo.attenuation * M_1_PI * cosTheta * weight;
+
+	throughput *= brdf;
+
+	return emitted + brdf * EvaluateColor(nextRay , 0.001, DBL_MAX, depth + 1, throughput);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

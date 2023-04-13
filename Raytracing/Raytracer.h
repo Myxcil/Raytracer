@@ -36,7 +36,6 @@ private:
 	Vector3			rcpDimension;
 	int				samplesPerPixel;
 	int				maxRaycastDepth;
-	Vector3::Type	terminationThreshold;
 	World*			world;
 
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -64,5 +63,5 @@ private:
 	
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			TraceScene(int _threadIndex);
-	Color			EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth);
+	Color			EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth, Vector3 throughput);
 };
