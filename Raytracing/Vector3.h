@@ -59,11 +59,11 @@ struct Vector3
 
 	bool				NearZero() const						{ const Type s = 1e-8; return (fabs(x) < s) && (fabs(y) < s) && (fabs(z) < s); }
 
-	static Type			Dot(const Vector3& _a, const Vector3& _b);
-	static Vector3		Cross(const Vector3& _a, const Vector3& _b);
-	static Vector3		Lerp(const Vector3& _a, const Vector3& _b, Vector3::Type _t);
+	static Type			Dot(const Vector3& _a, const Vector3& _b)						{ return _a.x*_b.x + _a.y*_b.y + _a.z*_b.z; }
+	static Vector3		Cross(const Vector3& _a, const Vector3& _b)						{ return Vector3(_a.y*_b.z - _a.z*_b.y, _a.z*_b.x - _a.x*_b.z, _a.x*_b.y - _a.y*_b.x); }
+	static Vector3		Lerp(const Vector3& _a, const Vector3& _b, Vector3::Type _t)	{ return _a + _t * (_b - _a); }
 	
-	static Vector3		Reflect(const Vector3& _v, const Vector3& _n);
+	static Vector3		Reflect(const Vector3& _v, const Vector3& _n)					{ return _v - 2.0 * Dot(_v, _n) * _n; }
 	static Vector3		Refract(const Vector3& _d, const Vector3& _n, Vector3::Type _eta_over_etaPrime);
 
 	static Vector3		Min(const Vector3& _a, const Vector3& _b) { return Vector3(min(_a.x,_b.x),min(_a.y,_b.y),min(_a.z,_b.z)); }

@@ -35,6 +35,7 @@ private:
 	int				currLine;
 	Vector3			rcpDimension;
 	int				samplesPerPixel;
+	int				numSecondarySamples;
 	int				maxRaycastDepth;
 	World*			world;
 
@@ -63,5 +64,5 @@ private:
 	
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			TraceScene(int _threadIndex);
-	Color			EvaluateColor(const Ray& _ray, Vector3::Type _weight, Vector3::Type _tMin, Vector3::Type _tMax, int depth);
+	Color			EvaluateColor(const Ray& _ray, Vector3::Type _weight, Vector3::Type _tMin, Vector3::Type _tMax, int _numSamples, int depth);
 };

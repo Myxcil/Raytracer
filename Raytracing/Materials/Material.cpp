@@ -134,3 +134,11 @@ DiffuseLight::DiffuseLight(const Color& _emit, bool _visible) :
 	visible(_visible)
 {
 }
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+bool DiffuseLight::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered, Vector3::Type& _reflectance) const
+{
+	_attenuation = Color(0,0,0);
+	_reflectance = 1.0;
+	return false;
+}

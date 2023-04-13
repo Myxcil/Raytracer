@@ -85,7 +85,7 @@ public:
 	DiffuseLight(const Color& _emit, bool _visible = true);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	bool	Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered, Vector3::Type& _reflectance) const override { return false; }
+	bool	Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered, Vector3::Type& _reflectance) const override;
 	Color	Emitted(const Vector3& _uvw, const Vector3& _point) const override { return emit; }
 
 private:

@@ -11,8 +11,9 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(100),
-	maxRaycastDepth(8),
+	samplesPerPixel(8),
+	numSecondarySamples(100),
+	maxRaycastDepth(6),
 	maxRenderThreads(0),
 	isRunning(false),
 	isFinished(false),
@@ -176,7 +177,7 @@ void Raytracer::TraceScene(int _threadIndex)
 
 				camera.CalculateRay(tx, ty, ray);
 
-				finalColor += EvaluateColor(ray, 1.0, camera.GetNearPlane(), FLT_MAX, maxRaycastDepth);
+				finalColor += EvaluateColor(ray, 1.0, camera.GetNearPlane(), DBL_MAX, numSecondarySamples, maxRaycastDepth);
 			}
 
 			SetPixel(x, y, finalColor);
@@ -197,7 +198,7 @@ void Raytracer::TraceScene(int _threadIndex)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _weight, Vector3::Type _tMin, Vector3::Type _tMax, int depth)
+Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _weight, Vector3::Type _tMin, Vector3::Type _tMax, int _numSamples, int depth)
 {
 	if (depth <= 0)
 		return Color(0,0,0);
@@ -214,13 +215,26 @@ Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _weight, Vector3::
 
 	Color emitted = hitInfo.material->Emitted(hitInfo.uvw, hitInfo.point);
 
-	Ray scattered;
-	Color attenuation;
-	Vector3::Type reflectance;
-	if (!hitInfo.material->Scatter(_ray, hitInfo, attenuation, scattered, reflectance))
-		return reflectance * emitted;
+	Color result = Color(0,0,0);
+	int count = 0;
+	int nextSamples = 1;
+	for(int i = 0; i < _numSamples; ++i)
+	{
+		++count;
 
-	return emitted + attenuation * EvaluateColor(scattered, _weight * reflectance, 0.001, DBL_MAX, depth - 1);;
+		Ray scattered;
+		Color attenuation;
+		Vector3::Type reflectance;
+		if (!hitInfo.material->Scatter(_ray, hitInfo, attenuation, scattered, reflectance))
+		{
+			result += reflectance * emitted;
+			break;
+		}
+		
+		result += emitted + attenuation * EvaluateColor(scattered, _weight * reflectance, 0.001, DBL_MAX, nextSamples, depth - 1);
+	}
+
+	return result / count;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
