@@ -226,9 +226,10 @@ Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Ty
 	Ray nextRay = Ray(hitInfo.point, scatterInfo.direction);
 	nextRay.origin += nextRay.direction * 0.000001;
 
-	throughput *= scatterInfo.attenuation;
+	Vector3 attenuation = scatterInfo.attenuation / threshold;
+	throughput *= attenuation;
 
-	return emitted + scatterInfo.attenuation * EvaluateColor(nextRay , 0.001, DBL_MAX, depth + 1, throughput) / threshold;
+	return emitted + attenuation * EvaluateColor(nextRay , 0.001, DBL_MAX, depth + 1, throughput);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
