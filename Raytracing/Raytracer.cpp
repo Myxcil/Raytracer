@@ -11,9 +11,9 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(200),
-	maxRaycastDepth(8),
-	terminationThreshold(0.5),
+	samplesPerPixel(1000),
+	maxRaycastDepth(0),
+	terminationThreshold(0.9),
 	maxRenderThreads(0),
 	isRunning(false),
 	isFinished(false),
@@ -227,8 +227,7 @@ Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Ty
 	Ray nextRay = Ray(hitInfo.point, scatterInfo.direction);
 	nextRay.origin += nextRay.direction * 0.000001;
 
-	Color result = emitted;
-	result += scatterInfo.attenuation * M_1_PI;
+	Color result = emitted + scatterInfo.attenuation * M_1_PI;
 	result *= EvaluateColor(nextRay , 0.001, DBL_MAX, depth + 1);
 	result *= Vector3::Dot(hitInfo.surfaceNormal, scatterInfo.direction);
 	result /= scatterInfo.probability * terminationThreshold;

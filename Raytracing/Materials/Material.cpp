@@ -55,8 +55,8 @@ bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterI
 	}
 
 	_scatterInfo.direction = scatterDir;
-	_scatterInfo.probability = Vector3::Dot(scatterDir,_hitInfo.surfaceNormal);
-	
+	_scatterInfo.probability = 1.0 / M_PI_2;
+
 	return true;
 }
 
