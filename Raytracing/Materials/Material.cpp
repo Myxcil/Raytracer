@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Material.h"
-#include "Objects/TraceableObject.h"
-#include "Textures/Texture.h"
+#include "../Objects/TraceableObject.h"
+#include "Texture.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 Material::Material(const Texture* _albedo) :

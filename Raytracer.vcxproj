@@ -156,7 +156,8 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="Raytracing\Camera.h" />
-    <ClInclude Include="Raytracing\Material.h" />
+    <ClInclude Include="Raytracing\Materials\Material.h" />
+    <ClInclude Include="Raytracing\Materials\Texture.h" />
     <ClInclude Include="Raytracing\Objects\AABB.h" />
     <ClInclude Include="Raytracing\Objects\Box.h" />
     <ClInclude Include="Raytracing\Objects\Quad.h" />
@@ -166,7 +167,6 @@
     <ClInclude Include="Raytracing\Objects\TriangleMesh.h" />
     <ClInclude Include="Raytracing\Raytracer.h" />
     <ClInclude Include="Raytracing\SceneNode.h" />
-    <ClInclude Include="Raytracing\Textures\Texture.h" />
     <ClInclude Include="Raytracing\Vector3.h" />
     <ClInclude Include="Raytracing\World.h" />
     <ClInclude Include="Win32\framework.h" />
@@ -189,7 +189,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Raytracing\Camera.cpp" />
-    <ClCompile Include="Raytracing\Material.cpp" />
+    <ClCompile Include="Raytracing\Materials\Material.cpp" />
+    <ClCompile Include="Raytracing\Materials\Texture.cpp" />
     <ClCompile Include="Raytracing\Objects\AABB.cpp" />
     <ClCompile Include="Raytracing\Objects\Box.cpp" />
     <ClCompile Include="Raytracing\Objects\InfinitePlane.cpp" />
@@ -199,7 +200,6 @@
     <ClCompile Include="Raytracing\Objects\TriangleMesh.cpp" />
     <ClCompile Include="Raytracing\Raytracer.cpp" />
     <ClCompile Include="Raytracing\SceneNode.cpp" />
-    <ClCompile Include="Raytracing\Textures\Texture.cpp" />
     <ClCompile Include="Raytracing\Vector3.cpp" />
     <ClCompile Include="Raytracing\World.cpp" />
     <ClCompile Include="Win32\Win32Main.cpp" />

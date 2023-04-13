@@ -12,7 +12,7 @@
     <Filter Include="Raytracing\Objects">
       <UniqueIdentifier>{ce9cfe3a-4dc6-48c7-85b6-f531115abb96}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Raytracing\Textures">
+    <Filter Include="Raytracing\Materials">
       <UniqueIdentifier>{4fbb0b95-2083-422f-bf63-4e7095c5a52e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -48,9 +48,6 @@
     <ClInclude Include="Raytracing\Vector3.h">
       <Filter>Raytracing</Filter>
     </ClInclude>
-    <ClInclude Include="Raytracing\Material.h">
-      <Filter>Raytracing</Filter>
-    </ClInclude>
     <ClInclude Include="Raytracing\Objects\Quad.h">
       <Filter>Raytracing\Objects</Filter>
     </ClInclude>
@@ -60,9 +57,6 @@
     <ClInclude Include="Raytracing\Objects\AABB.h">
       <Filter>Raytracing\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Raytracing\Textures\Texture.h">
-      <Filter>Raytracing\Textures</Filter>
-    </ClInclude>
     <ClInclude Include="Raytracing\World.h">
       <Filter>Raytracing</Filter>
     </ClInclude>
@@ -71,6 +65,12 @@
     </ClInclude>
     <ClInclude Include="Raytracing\Objects\TriangleMesh.h">
       <Filter>Raytracing\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Raytracing\Materials\Texture.h">
+      <Filter>Raytracing\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Raytracing\Materials\Material.h">
+      <Filter>Raytracing\Materials</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -106,9 +106,6 @@
     <ClCompile Include="Raytracing\Objects\TraceableObject.cpp">
       <Filter>Raytracing\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Raytracing\Material.cpp">
-      <Filter>Raytracing</Filter>
-    </ClCompile>
     <ClCompile Include="Raytracing\Vector3.cpp">
       <Filter>Raytracing</Filter>
     </ClCompile>
@@ -121,9 +118,6 @@
     <ClCompile Include="Raytracing\Objects\AABB.cpp">
       <Filter>Raytracing\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Raytracing\Textures\Texture.cpp">
-      <Filter>Raytracing\Textures</Filter>
-    </ClCompile>
     <ClCompile Include="Raytracing\World.cpp">
       <Filter>Raytracing</Filter>
     </ClCompile>
@@ -132,6 +126,12 @@
     </ClCompile>
     <ClCompile Include="Raytracing\Objects\TriangleMesh.cpp">
       <Filter>Raytracing\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Raytracing\Materials\Material.cpp">
+      <Filter>Raytracing\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="Raytracing\Materials\Texture.cpp">
+      <Filter>Raytracing\Materials</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

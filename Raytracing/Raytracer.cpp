@@ -2,7 +2,7 @@
 #include "Raytracer.h"
 #include "World.h"
 #include "Objects/TraceableObject.h"
-#include "Material.h"
+#include "Materials/Material.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 Raytracer::Raytracer() :
@@ -11,7 +11,7 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(1000),
+	samplesPerPixel(100),
 	maxRaycastDepth(8),
 	maxRenderThreads(0),
 	isRunning(false),

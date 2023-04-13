@@ -4,9 +4,8 @@
 #include "Camera.h"
 #include "SceneNode.h"
 
-#include "Textures/Texture.h"
-
-#include "Material.h"
+#include "Materials/Texture.h"
+#include "Materials/Material.h"
 
 #include "Objects/Sphere.h"
 #include "Objects/InfinitePlane.h"
