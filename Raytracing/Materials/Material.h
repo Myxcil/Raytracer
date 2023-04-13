@@ -9,7 +9,6 @@ struct ScatterInfo
 {
 	Vector3			attenuation;
 	Vector3			direction;
-	Vector3::Type	probability;
 };
 
 //----------------------------------------------------------------------------------------------------------------------------------------

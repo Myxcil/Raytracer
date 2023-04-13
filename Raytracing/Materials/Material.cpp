@@ -41,21 +41,21 @@ LambertMaterial::LambertMaterial(const Texture* _albedo) :
 //----------------------------------------------------------------------------------------------------------------------------------------
 bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const
 {
-	_scatterInfo.attenuation = SampleAlbedo(_hitInfo);
-
 	Vector3 scatterDir = Helper::RandomUnitHemisphere(_hitInfo.surfaceNormal);
 	scatterDir += _hitInfo.surfaceNormal;
 	if (scatterDir.NearZero())
 	{
 		scatterDir = _hitInfo.surfaceNormal;
 	}
-	else 
+	else
 	{
 		scatterDir.Normalize();
 	}
-
 	_scatterInfo.direction = scatterDir;
-	_scatterInfo.probability = 1.0 / M_PI_2;
+
+	_scatterInfo.attenuation = SampleAlbedo(_hitInfo) * M_1_PI;
+	_scatterInfo.attenuation *= Vector3::Dot(_hitInfo.surfaceNormal, _scatterInfo.direction);
+	_scatterInfo.attenuation *= M_PI_2;
 
 	return true;
 }
@@ -74,7 +74,6 @@ bool MetalMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInf
 {
 	_scatterInfo.attenuation = SampleAlbedo(_hitInfo);
 	_scatterInfo.direction = Vector3::Reflect(_ray.direction, _hitInfo.surfaceNormal) + fuzziness * Helper::RandomUnitSphere();
-	_scatterInfo.probability = 1.0f;
 	return Vector3::Dot(_scatterInfo.direction, _hitInfo.surfaceNormal) > 0;
 }
 
@@ -108,8 +107,6 @@ bool DielectricMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Scatt
 		_scatterInfo.direction = Vector3::Refract(_ray.direction, _hitInfo.surfaceNormal, refractionRatio);
 	}
 	
-	_scatterInfo.probability = 1.0f;
-
 	return true;
 }
 
