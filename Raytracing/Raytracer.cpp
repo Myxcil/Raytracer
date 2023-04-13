@@ -11,9 +11,9 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(8),
-	numSecondarySamples(100),
-	maxRaycastDepth(6),
+	samplesPerPixel(200),
+	maxRaycastDepth(8),
+	terminationThreshold(0.5),
 	maxRenderThreads(0),
 	isRunning(false),
 	isFinished(false),
@@ -109,6 +109,7 @@ void Raytracer::Run()
 		remainingLines.push_back(i);
 	}
 
+	maxRenderThreads = 0;
 	renderFinished = new bool[numThreads];
 	for (unsigned int i = 0; i < numThreads; ++i)
 	{
@@ -138,7 +139,7 @@ bool Raytracer::IsRunning()
 			QueryPerformanceCounter(&time);
 			
 			double duration = rcpTimerFreq * (time.QuadPart - timeStamp.QuadPart);
-			Helper::Log(_T("Rendering time total: %f\n"), duration);
+			Helper::Log(_T("Rendering time total %f, max depth %d\n"), duration, maxRaycastDepth);
 	
 			CleanupThreads();
 
@@ -177,7 +178,7 @@ void Raytracer::TraceScene(int _threadIndex)
 
 				camera.CalculateRay(tx, ty, ray);
 
-				finalColor += EvaluateColor(ray, 1.0, camera.GetNearPlane(), DBL_MAX, numSecondarySamples, maxRaycastDepth);
+				finalColor += EvaluateColor(ray, camera.GetNearPlane(), DBL_MAX, 1);
 			}
 
 			SetPixel(x, y, finalColor);
@@ -198,13 +199,9 @@ void Raytracer::TraceScene(int _threadIndex)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _weight, Vector3::Type _tMin, Vector3::Type _tMax, int _numSamples, int depth)
+Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth)
 {
-	if (depth <= 0)
-		return Color(0,0,0);
-
-	if (_weight <= 0.0001)
-		return Color(0,0,0);
+	maxRaycastDepth = max(maxRaycastDepth, depth);
 
 	HitInfo hitInfo;
 	world->Raycast(hitInfo, _ray, _tMin, _tMax);
@@ -215,26 +212,27 @@ Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _weight, Vector3::
 
 	Color emitted = hitInfo.material->Emitted(hitInfo.uvw, hitInfo.point);
 
-	Color result = Color(0,0,0);
-	int count = 0;
-	int nextSamples = 1;
-	for(int i = 0; i < _numSamples; ++i)
+	ScatterInfo scatterInfo;
+	if (!hitInfo.material->Scatter(_ray, hitInfo, scatterInfo))
 	{
-		++count;
-
-		Ray scattered;
-		Color attenuation;
-		Vector3::Type reflectance;
-		if (!hitInfo.material->Scatter(_ray, hitInfo, attenuation, scattered, reflectance))
-		{
-			result += reflectance * emitted;
-			break;
-		}
-		
-		result += emitted + attenuation * EvaluateColor(scattered, _weight * reflectance, 0.001, DBL_MAX, nextSamples, depth - 1);
+		return emitted;
 	}
 
-	return result / count;
+	Vector3::Type threshold = pow(terminationThreshold, depth);
+	if (Helper::Random() >= threshold)
+	{
+		return emitted;
+	}
+
+	Ray nextRay = Ray(hitInfo.point, scatterInfo.direction);
+	nextRay.origin += nextRay.direction * 0.000001;
+
+	Color result = emitted;
+	result += scatterInfo.attenuation * M_1_PI;
+	result *= EvaluateColor(nextRay , 0.001, DBL_MAX, depth + 1);
+	result *= Vector3::Dot(hitInfo.surfaceNormal, scatterInfo.direction);
+	result /= scatterInfo.probability * terminationThreshold;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

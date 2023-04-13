@@ -90,18 +90,19 @@ void World::InitCornellBox(Camera& _camera)
 	worldObjects.push_back(new Quad(Vector3(1, 0, 0), Vector3(-1, 0, 0), Vector3(1, 1, 0), matGreen));	// right
 
 	// light
-	Material* lightWhite = new DiffuseLight(Color(4, 4, 4));
+	Material* lightWhite = new DiffuseLight(Color(10, 10, 10));
 	worldObjects.push_back(new Quad(Vector3(0, 0.99, 0), Vector3(0, -1, 0), Vector3(0.25, 0.25, 0), lightWhite));
 
 	// test objects
+	Material* matBlue = new LambertMaterial(&ConstantColor::BLUE);
+	worldObjects.push_back(new Sphere(Vector3(-0.5, -0.75, 0.25), 0.25, matBlue));
+	/*
 	Material* matGlass = new DielectricMaterial(1.5f);
 	worldObjects.push_back(new Sphere(Vector3(0, -0.75, -0.5), 0.25, matGlass));
 
-	Material* matBlue = new LambertMaterial(&ConstantColor::BLUE);
-	worldObjects.push_back(new Sphere(Vector3(-0.5, -0.75, 0.25), 0.25, matBlue));
-
 	Material* matMetal = new MetalMaterial(&ConstantColor::WHITE, 0);
 	worldObjects.push_back(new Sphere(Vector3(0.5, -0.75, 0.25), 0.25, matMetal));
+	*/
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

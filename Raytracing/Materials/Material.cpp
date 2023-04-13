@@ -39,11 +39,12 @@ LambertMaterial::LambertMaterial(const Texture* _albedo) :
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered, Vector3::Type& _reflectance) const
+bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const
 {
-	_attenuation = SampleAlbedo(_hitInfo);
+	_scatterInfo.attenuation = SampleAlbedo(_hitInfo);
 
-	Vector3 scatterDir = _hitInfo.surfaceNormal + Helper::RandomUnitHemisphere(_hitInfo.surfaceNormal);
+	Vector3 scatterDir = Helper::RandomUnitHemisphere(_hitInfo.surfaceNormal);
+	scatterDir += _hitInfo.surfaceNormal;
 	if (scatterDir.NearZero())
 	{
 		scatterDir = _hitInfo.surfaceNormal;
@@ -52,9 +53,10 @@ bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3&
 	{
 		scatterDir.Normalize();
 	}
-	_scattered = Ray(_hitInfo.point, scatterDir);
-	_reflectance = 0.5f;
 
+	_scatterInfo.direction = scatterDir;
+	_scatterInfo.probability = Vector3::Dot(scatterDir,_hitInfo.surfaceNormal);
+	
 	return true;
 }
 
@@ -68,17 +70,12 @@ MetalMaterial::MetalMaterial(const Texture* _albedo, Vector3::Type _fuzziness) :
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool MetalMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered, Vector3::Type& _reflectance) const
+bool MetalMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const
 {
-	_attenuation = SampleAlbedo(_hitInfo);
-
-	Vector3 reflected;
-	reflected = Vector3::Reflect(_ray.direction, _hitInfo.surfaceNormal) + fuzziness * Helper::RandomUnitSphere();
-
-	_scattered = Ray(_hitInfo.point, reflected);
-	_reflectance = fmax(0.5, 1.0f - fuzziness);
-
-	return Vector3::Dot(reflected, _hitInfo.surfaceNormal) > 0;
+	_scatterInfo.attenuation = SampleAlbedo(_hitInfo);
+	_scatterInfo.direction = Vector3::Reflect(_ray.direction, _hitInfo.surfaceNormal) + fuzziness * Helper::RandomUnitSphere();
+	_scatterInfo.probability = 1.0f;
+	return Vector3::Dot(_scatterInfo.direction, _hitInfo.surfaceNormal) > 0;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -91,29 +88,28 @@ DielectricMaterial::DielectricMaterial(Vector3::Type _refractionIndex) :
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool DielectricMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered, Vector3::Type& _reflectance) const
+bool DielectricMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const
 {
-	_attenuation = Color(1,1,1);
+	_scatterInfo.attenuation = Color(1,1,1);
 
 	Vector3::Type refractionRatio = _hitInfo.frontFace ? 1.0/refractionIndex : refractionIndex;
 
 	Vector3::Type cos_theta = fmin(Vector3::Dot(-_ray.direction, _hitInfo.surfaceNormal), 1.0);
 	Vector3::Type sin_theta = sqrt(1.0 - cos_theta * cos_theta);
 
-	Vector3 direction;
 	bool cantRefract = refractionRatio * sin_theta > 1.0;
-	_reflectance = CalcReflectance(cos_theta, refractionRatio);
-	if (cantRefract || _reflectance > Helper::Random())
+	Vector3::Type reflectance = CalcReflectance(cos_theta, refractionRatio);
+	if (cantRefract || reflectance > Helper::Random())
 	{
-		direction = Vector3::Reflect(_ray.direction, _hitInfo.surfaceNormal);
+		_scatterInfo.direction = Vector3::Reflect(_ray.direction, _hitInfo.surfaceNormal);
 	}
 	else 
 	{
-		direction = Vector3::Refract(_ray.direction, _hitInfo.surfaceNormal, refractionRatio);
+		_scatterInfo.direction = Vector3::Refract(_ray.direction, _hitInfo.surfaceNormal, refractionRatio);
 	}
 	
-	_scattered = Ray(_hitInfo.point, direction);
-	
+	_scatterInfo.probability = 1.0f;
+
 	return true;
 }
 
@@ -133,12 +129,4 @@ DiffuseLight::DiffuseLight(const Color& _emit, bool _visible) :
 	emit(_emit),
 	visible(_visible)
 {
-}
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-bool DiffuseLight::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Vector3& _attenuation, Ray& _scattered, Vector3::Type& _reflectance) const
-{
-	_attenuation = Color(0,0,0);
-	_reflectance = 1.0;
-	return false;
 }
