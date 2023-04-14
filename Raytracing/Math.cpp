@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Vector3.h"
+#include "Math.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 Vector3 Vector3::Refract(const Vector3& _d, const Vector3& _n, Vector3::Type _eta_over_etaPrime)

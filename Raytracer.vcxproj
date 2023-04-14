@@ -167,7 +167,7 @@
     <ClInclude Include="Raytracing\Objects\TriangleMesh.h" />
     <ClInclude Include="Raytracing\Raytracer.h" />
     <ClInclude Include="Raytracing\SceneNode.h" />
-    <ClInclude Include="Raytracing\Vector3.h" />
+    <ClInclude Include="Raytracing\Math.h" />
     <ClInclude Include="Raytracing\World.h" />
     <ClInclude Include="Win32\framework.h" />
     <ClInclude Include="Win32\resource.h" />
@@ -200,7 +200,7 @@
     <ClCompile Include="Raytracing\Objects\TriangleMesh.cpp" />
     <ClCompile Include="Raytracing\Raytracer.cpp" />
     <ClCompile Include="Raytracing\SceneNode.cpp" />
-    <ClCompile Include="Raytracing\Vector3.cpp" />
+    <ClCompile Include="Raytracing\Math.cpp" />
     <ClCompile Include="Raytracing\World.cpp" />
     <ClCompile Include="Win32\Win32Main.cpp" />
   </ItemGroup>
