@@ -18,7 +18,7 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void				Init(Camera& _camera);
-	void				Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax);
+	void				Raycast(HitInfo& _hitInfo, const Ray& _ray, double _tMin, double _tMax);
 	Color				SampleEnviroment(const Vector3& _rayDirection) const;
 
 private:

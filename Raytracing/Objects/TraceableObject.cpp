@@ -17,7 +17,7 @@ TraceableObject::~TraceableObject()
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool TraceableObject::Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
+bool TraceableObject::Hit(const Ray& _ray, double _tMin, double _tMax) const
 {
 	return aabb.Hit(_ray, _tMin, _tMax);
 }

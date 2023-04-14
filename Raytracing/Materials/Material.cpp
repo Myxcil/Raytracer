@@ -42,8 +42,8 @@ LambertMaterial::LambertMaterial(const Texture* _albedo) :
 bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const
 {
 	// FIX ME!!! BAD RAYS ?!
-	//_scatterInfo.direction = Helper::RandomCosineHemisphere(_hitInfo.surfaceNormal);
-	_scatterInfo.direction = Helper::RandomUnitHemisphere(_hitInfo.surfaceNormal);
+	_scatterInfo.direction = Helper::RandomCosineHemisphere(_hitInfo.surfaceNormal);
+	//_scatterInfo.direction = Helper::RandomUnitHemisphere(_hitInfo.surfaceNormal);
 
 	_scatterInfo.attenuation = SampleAlbedo(_hitInfo) * M_1_PI;
 	_scatterInfo.attenuation *= Vector3::Dot(_hitInfo.surfaceNormal, _scatterInfo.direction);
@@ -55,7 +55,7 @@ bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterI
 //----------------------------------------------------------------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------------------------------------------------------------
-MetalMaterial::MetalMaterial(const Texture* _albedo, Vector3::Type _fuzziness) :
+MetalMaterial::MetalMaterial(const Texture* _albedo, double _fuzziness) :
 	Material(_albedo),
 	fuzziness(_fuzziness)
 {
@@ -72,7 +72,7 @@ bool MetalMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInf
 //----------------------------------------------------------------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------------------------------------------------------------
-DielectricMaterial::DielectricMaterial(Vector3::Type _refractionIndex) :
+DielectricMaterial::DielectricMaterial(double _refractionIndex) :
 	Material(nullptr),
 	refractionIndex(_refractionIndex)
 {
@@ -83,13 +83,13 @@ bool DielectricMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Scatt
 {
 	_scatterInfo.attenuation = Color(1,1,1);
 
-	Vector3::Type refractionRatio = _hitInfo.frontFace ? 1.0/refractionIndex : refractionIndex;
+	double refractionRatio = _hitInfo.frontFace ? 1.0/refractionIndex : refractionIndex;
 
-	Vector3::Type cos_theta = fmin(Vector3::Dot(-_ray.direction, _hitInfo.surfaceNormal), 1.0);
-	Vector3::Type sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+	double cos_theta = fmin(Vector3::Dot(-_ray.direction, _hitInfo.surfaceNormal), 1.0);
+	double sin_theta = sqrt(1.0 - cos_theta * cos_theta);
 
 	bool cantRefract = refractionRatio * sin_theta > 1.0;
-	Vector3::Type reflectance = CalcReflectance(cos_theta, refractionRatio);
+	double reflectance = CalcReflectance(cos_theta, refractionRatio);
 	if (cantRefract || reflectance > Helper::Random())
 	{
 		_scatterInfo.direction = Vector3::Reflect(_ray.direction, _hitInfo.surfaceNormal);
@@ -103,9 +103,9 @@ bool DielectricMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, Scatt
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-Vector3::Type DielectricMaterial::CalcReflectance(Vector3::Type _cosine, Vector3::Type _refractionIndex)
+double DielectricMaterial::CalcReflectance(double _cosine, double _refractionIndex)
 {
-	Vector3::Type r0 = (1.0 - _refractionIndex) / (1.0 + _refractionIndex);
+	double r0 = (1.0 - _refractionIndex) / (1.0 + _refractionIndex);
 	r0 = r0 * r0;
 	return r0 + (1.0 - r0) * pow((1.0 - _cosine), 5.0);
 }

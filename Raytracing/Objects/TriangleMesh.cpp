@@ -3,7 +3,7 @@
 #include "Sphere.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-TriangleMesh::TriangleMesh(const Vector3& _center, const TCHAR* _filename, Vector3::Type _scale, Material* _material) :
+TriangleMesh::TriangleMesh(const Vector3& _center, const TCHAR* _filename, double _scale, Material* _material) :
 	TraceableObject(_center, _material)
 {
 	std::vector<Vector3> positions;
@@ -63,7 +63,7 @@ void TriangleMesh::LoadMeshFromFile(const TCHAR* _filename, std::vector<Vector3>
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void TriangleMesh::BuildMesh(const std::vector<Vector3>& _positions, const std::vector<int>& _indices, Vector3::Type _scale)
+void TriangleMesh::BuildMesh(const std::vector<Vector3>& _positions, const std::vector<int>& _indices, double _scale)
 {
 	size_t triCount = _indices.size() / 3;
 	assert(triCount * 3 == _indices.size());
@@ -113,12 +113,12 @@ void TriangleMesh::BuildMesh(const std::vector<Vector3>& _positions, const std::
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void TriangleMesh::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
+void TriangleMesh::Raycast(HitInfo& _hitInfo, const Ray& _ray, double _tMin, double _tMax) const
 {
 	if (!aabb.Hit(_ray, _tMin, _tMax))
 		return;
 
-	Vector3::Type nearest = _tMax;
+	double nearest = _tMax;
 	for (size_t i = 0; i < triangles.size(); ++i)
 	{
 		IntersectTri(_hitInfo, _ray, triangles[i], _tMin, nearest);
@@ -133,23 +133,23 @@ void TriangleMesh::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tM
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool TriangleMesh::IntersectTri(HitInfo& _hitInfo, const Ray& _ray, const Triangle& _tri, Vector3::Type _tMin, Vector3::Type _tMax) const
+bool TriangleMesh::IntersectTri(HitInfo& _hitInfo, const Ray& _ray, const Triangle& _tri, double _tMin, double _tMax) const
 {
 	Vector3 pvec = Vector3::Cross(_ray.direction, _tri.e2);
-	Vector3::Type det = Vector3::Dot(_tri.e1, pvec);
+	double det = Vector3::Dot(_tri.e1, pvec);
 	if (det != 0)
 	{
-		Vector3::Type invDet = 1.0 / det;
+		double invDet = 1.0 / det;
 		Vector3 tvec = _ray.origin - vertices[_tri.v[0]].pos;
 
-		Vector3::Type u = Vector3::Dot(tvec, pvec) * invDet;
+		double u = Vector3::Dot(tvec, pvec) * invDet;
 		if (u >= 0 && u <= 1.0)
 		{
 			Vector3 qvec = Vector3::Cross(tvec, _tri.e1);
-			Vector3::Type v = Vector3::Dot(_ray.direction, qvec) * invDet;
+			double v = Vector3::Dot(_ray.direction, qvec) * invDet;
 			if (v >= 0 && (u + v) <= 1.0)
 			{
-				Vector3::Type temp = Vector3::Dot(_tri.e2, qvec) * invDet;
+				double temp = Vector3::Dot(_tri.e2, qvec) * invDet;
 				if (temp >= _tMin && temp <= _tMax)
 				{
 					_hitInfo.isHit = true;
@@ -173,16 +173,16 @@ void TriangleMesh::GetTriBarycentric(const Triangle& _tri, const Vector3& _p, Ve
 {
 	Vector3 q = _p - vertices[_tri.v[0]].pos;
 
-	Vector3::Type d00 = _tri.lenSq1;
-	Vector3::Type d01 = _tri.dot12;
-	Vector3::Type d11 = _tri.lenSq2;
-	Vector3::Type d20 = Vector3::Dot(q, _tri.e1);
-	Vector3::Type d21 = Vector3::Dot(q, _tri.e2);
+	double d00 = _tri.lenSq1;
+	double d01 = _tri.dot12;
+	double d11 = _tri.lenSq2;
+	double d20 = Vector3::Dot(q, _tri.e1);
+	double d21 = Vector3::Dot(q, _tri.e2);
 
-	Vector3::Type d = d00 * d11 - d01 * d01;
-	Vector3::Type v = (d11 * d20 - d01 * d21) / d;
-	Vector3::Type w = (d00 * d21 - d01 * d20) / d;
-	Vector3::Type u = 1.0 - v - w;
+	double d = d00 * d11 - d01 * d01;
+	double v = (d11 * d20 - d01 * d21) / d;
+	double w = (d00 * d21 - d01 * d20) / d;
+	double u = 1.0 - v - w;
 
 	_result = Vector3(u,v,w);
 }

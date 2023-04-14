@@ -63,5 +63,5 @@ private:
 	
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			TraceScene(int _threadIndex);
-	Color			EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth, Vector3 throughput);
+	Color			EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int depth, Vector3 throughput);
 };

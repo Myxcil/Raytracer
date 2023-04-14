@@ -175,8 +175,8 @@ void Raytracer::TraceScene(int _threadIndex)
 			Color finalColor(0,0,0);
 			for (int i = 0; i < samplesPerPixel; ++i)
 			{
-				Vector3::Type tx = rcpDimension.x * (Helper::Random() + x);
-				Vector3::Type ty = 1.0f - rcpDimension.y * (Helper::Random() + y);
+				double tx = rcpDimension.x * (Helper::Random() + x);
+				double ty = 1.0f - rcpDimension.y * (Helper::Random() + y);
 
 				camera.CalculateRay(tx, ty, ray);
 
@@ -201,7 +201,7 @@ void Raytracer::TraceScene(int _threadIndex)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax, int depth, Vector3 throughput)
+Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int depth, Vector3 throughput)
 {
 	maxRaycastDepth = max(maxRaycastDepth, depth);
 
@@ -225,7 +225,7 @@ Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Ty
 	// Each iteration which doesn't involve a 100% reflection
 	// will reduce the throughput and make it more likely that
 	// this ray terminates
-	Vector3::Type threshold = fmin(0.999,fmax(fmax(throughput.x,throughput.y),throughput.z));
+	double threshold = fmin(0.999,fmax(fmax(throughput.x,throughput.y),throughput.z));
 	if (Helper::Random() >= threshold)
 	{
 		return emitted;

@@ -11,7 +11,7 @@ Box::Box(const Vector3& _center, const Vector3& _size, Material* _material) :
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Box::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
+void Box::Raycast(HitInfo& _hitInfo, const Ray& _ray, double _tMin, double _tMax) const
 {
 	aabb.Raycast(_hitInfo, _ray, _tMin, _tMax);
 	if (_hitInfo.isHit)

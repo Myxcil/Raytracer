@@ -55,12 +55,12 @@ class MetalMaterial : public Material
 {
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	MetalMaterial(const Texture* _albedo, Vector3::Type _fuzziness);
+	MetalMaterial(const Texture* _albedo, double _fuzziness);
 	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const override;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	Vector3::Type	fuzziness;
+	double	fuzziness;
 };
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -70,16 +70,16 @@ class DielectricMaterial : public Material
 {
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	DielectricMaterial(Vector3::Type _refractionIndex);
+	DielectricMaterial(double _refractionIndex);
 	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const override;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	static Vector3::Type	CalcReflectance(Vector3::Type _cosine, Vector3::Type _refractionIndex);
+	static double	CalcReflectance(double _cosine, double _refractionIndex);
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	Vector3::Type	refractionIndex;
+	double	refractionIndex;
 };
 
 //----------------------------------------------------------------------------------------------------------------------------------------

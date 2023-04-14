@@ -148,7 +148,7 @@ void World::InitTeapot(Camera& _camera)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void World::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax)
+void World::Raycast(HitInfo& _hitInfo, const Ray& _ray, double _tMin, double _tMax)
 {
 	if (root != nullptr)
 	{
@@ -175,7 +175,7 @@ Color World::SampleEnviroment(const Vector3& _rayDirection) const
 {
 	if (useEnviromentBackground)
 	{
-		Vector3::Type t = 0.5 + 0.5 * _rayDirection.y;
+		double t = 0.5 + 0.5 * _rayDirection.y;
 		return Color::Lerp(colorA, colorB, t);
 	}
 	else

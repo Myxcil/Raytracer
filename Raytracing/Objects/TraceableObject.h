@@ -11,7 +11,7 @@ class Material;
 struct HitInfo
 {
 	bool					isHit;
-	Vector3::Type			distance;
+	double			distance;
 	Vector3					point;
 	Vector3					surfaceNormal;
 	Vector3					uvw;
@@ -41,8 +41,8 @@ public:
 	virtual ~TraceableObject();
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	bool			Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const;
-	virtual void	Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const = 0;
+	bool			Hit(const Ray& _ray, double _tMin, double _tMax) const;
+	virtual void	Raycast(HitInfo& _hitInfo, const Ray& _ray, double _tMin, double _tMax) const = 0;
 	
 	//------------------------------------------------------------------------------------------------------------------------------------
 	const AABB&		GetAABB() const { return aabb; }

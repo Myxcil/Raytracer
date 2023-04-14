@@ -27,7 +27,7 @@ void AABB::Merge(const AABB& _other)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool AABB::Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
+bool AABB::Hit(const Ray& _ray, double _tMin, double _tMax) const
 {
 	if (isValid)
 	{
@@ -35,9 +35,9 @@ bool AABB::Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 		{
 			if (_ray.direction.v[i] != 0)
 			{
-				Vector3::Type invD = 1.0 / _ray.direction.v[i];
-				Vector3::Type t0 = (vMin.v[i] - _ray.origin.v[i]) * invD;
-				Vector3::Type t1 = (vMax.v[i] - _ray.origin.v[i]) * invD;
+				double invD = 1.0 / _ray.direction.v[i];
+				double t0 = (vMin.v[i] - _ray.origin.v[i]) * invD;
+				double t1 = (vMax.v[i] - _ray.origin.v[i]) * invD;
 				if (invD < 0)
 				{
 					std::swap(t0, t1);
@@ -53,7 +53,7 @@ bool AABB::Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void AABB::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
+void AABB::Raycast(HitInfo& _hitInfo, const Ray& _ray, double _tMin, double _tMax) const
 {
 	if (!Hit(_ray, _tMin, _tMax))
 		return;
@@ -64,12 +64,12 @@ void AABB::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vect
 	Vector3 t0 = Vector3::Min(rMin, rMax);
 	Vector3 t1 = Vector3::Max(rMin, rMax);
 
-	Vector3::Type tNear = max(max(t0.x, t0.y), t0.z);
-	Vector3::Type tFar = min(min(t1.x, t1.y), t1.z);
+	double tNear = max(max(t0.x, t0.y), t0.z);
+	double tFar = min(min(t1.x, t1.y), t1.z);
 
 	if (tNear < tFar)
 	{
-		Vector3::Type distance = tNear >= 0 ? tNear : tFar;;
+		double distance = tNear >= 0 ? tNear : tFar;;
 
 		_hitInfo.isHit = true;
 		_hitInfo.distance = distance;
@@ -98,10 +98,10 @@ void AABB::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vect
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void AABB::EnsureMinSize(Vector3::Type _minSize)
+void AABB::EnsureMinSize(double _minSize)
 {
 	Vector3 size = Size();
-	Vector3::Type halfMin = 0.5 + _minSize;
+	double halfMin = 0.5 + _minSize;
 	if (size.x < _minSize)
 	{
 		vMin.x -= halfMin;

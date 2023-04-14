@@ -2,7 +2,7 @@
 #include "Sphere.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-Sphere::Sphere(const Vector3& _center, Vector3::Type _radius, Material* _material) : TraceableObject(_center, _material)
+Sphere::Sphere(const Vector3& _center, double _radius, Material* _material) : TraceableObject(_center, _material)
 {
 	radius = _radius;
 	Vector3 vRadius(radius,radius,radius);
@@ -18,12 +18,12 @@ Sphere::~Sphere()
 //		x² + y² + z² = r²
 // =>	|ray.pos + ray.dir * dst|² = r²
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Sphere::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
+void Sphere::Raycast(HitInfo& _hitInfo, const Ray& _ray, double _tMin, double _tMax) const
 {
-	Vector3::Type t0,t1;
+	double t0,t1;
 	if (Intersect(_ray, center, radius, t0, t1))
 	{
-		Vector3::Type distance = t0;
+		double distance = t0;
 		if (distance < _tMin || distance > _tMax)
 		{
 			distance = t1;
@@ -48,27 +48,27 @@ void Sphere::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Ve
 //----------------------------------------------------------------------------------------------------------------------------------------
 void Sphere::CalcSphereUV(const Vector3& _point, Vector3& _uvw)
 {
-	Vector3::Type theta = acos(-_point.y);
-	Vector3::Type phi = atan2(-_point.z, _point.x) + M_PI;
+	double theta = acos(-_point.y);
+	double phi = atan2(-_point.z, _point.x) + M_PI;
 	_uvw = Vector3(phi * 0.5 * M_1_PI, theta * M_1_PI, 0);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool Sphere::Intersect(const Ray& _ray, const Vector3& _center, Vector3::Type _radius, Vector3::Type& _t0, Vector3::Type& _t1)
+bool Sphere::Intersect(const Ray& _ray, const Vector3& _center, double _radius, double& _t0, double& _t1)
 {
 	Vector3 offsetRayOrigin = _ray.origin - _center;
 
 	// coefficients for quadratic equation
-	Vector3::Type a = _ray.direction.LengthSq();
-	Vector3::Type half_b = Vector3::Dot(offsetRayOrigin, _ray.direction);
-	Vector3::Type c = offsetRayOrigin.LengthSq() - _radius * _radius;
+	double a = _ray.direction.LengthSq();
+	double half_b = Vector3::Dot(offsetRayOrigin, _ray.direction);
+	double c = offsetRayOrigin.LengthSq() - _radius * _radius;
 
 	// quadratic discrinant
-	Vector3::Type d = half_b * half_b - a * c;
+	double d = half_b * half_b - a * c;
 	if (d < 0)
 		return false;
 
-	Vector3::Type sqrt_d = sqrt(d);
+	double sqrt_d = sqrt(d);
 	_t0 = (-half_b - sqrt_d) / a;
 	_t1 = (-half_b + sqrt_d) / a;;
 

@@ -29,7 +29,7 @@ void Camera::LookAt(const Vector3& _worldPosition)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Camera::CalculateRay(Vector3::Type _tx, Vector3::Type _ty, Ray& _ray) const
+void Camera::CalculateRay(double _tx, double _ty, Ray& _ray) const
 {
 	_tx -= 0.5;
 	_ty -= 0.5;

@@ -106,7 +106,7 @@ bool SceneNode::AABBCompare(const TraceableObject* _a, const TraceableObject* _b
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void SceneNode::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const
+void SceneNode::Raycast(HitInfo& _hitInfo, const Ray& _ray, double _tMin, double _tMax) const
 {
 	if (object != NULL)
 	{

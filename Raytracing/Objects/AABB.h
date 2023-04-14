@@ -17,14 +17,14 @@ public:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			Merge(const Vector3& _p);
 	void			Merge(const AABB& _other);
-	bool			Hit(const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const;
-	void			Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const;
+	bool			Hit(const Ray& _ray, double _tMin, double _tMax) const;
+	void			Raycast(HitInfo& _hitInfo, const Ray& _ray, double _tMin, double _tMax) const;
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	const Vector3&	Min() const { return vMin; }
 	const Vector3&	Max() const { return vMax; }
 	Vector3			Size() const { return vMax - vMin; }
-	void			EnsureMinSize(Vector3::Type _minSize);
+	void			EnsureMinSize(double _minSize);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	static AABB		Merge(const AABB& _a, const AABB& _b)	{ AABB merged(_a); merged.Merge(_b); return merged; }

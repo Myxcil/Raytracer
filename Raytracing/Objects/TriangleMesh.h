@@ -7,10 +7,10 @@ class TriangleMesh : public TraceableObject
 {
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
-	TriangleMesh(const Vector3& _center, const TCHAR* _filename, Vector3::Type _scale, Material* _material);
+	TriangleMesh(const Vector3& _center, const TCHAR* _filename, double _scale, Material* _material);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	void			Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin, Vector3::Type _tMax) const override;
+	void			Raycast(HitInfo& _hitInfo, const Ray& _ray, double _tMin, double _tMax) const override;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ private:
 	{
 		Vector3			pos;
 		Vector3			nrm;
-		Vector3::Type	u,v;
+		double	u,v;
 	};
 
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -27,17 +27,17 @@ private:
 		int				v[3];
 		Vector3			e1;
 		Vector3			e2;
-		Vector3::Type	lenSq1;
-		Vector3::Type	lenSq2;
-		Vector3::Type	dot12;
+		double	lenSq1;
+		double	lenSq2;
+		double	dot12;
 	};
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			LoadMeshFromFile(const TCHAR* _filename, std::vector<Vector3>& _positions, std::vector<int>& _indices);
-	void			BuildMesh(const std::vector<Vector3>& _positions, const std::vector<int>& _indices, Vector3::Type _scale);
+	void			BuildMesh(const std::vector<Vector3>& _positions, const std::vector<int>& _indices, double _scale);
 
-	bool			IntersectTri(HitInfo& _hitInfo, const Ray& _ray, const Triangle& _tri, Vector3::Type _tMin, Vector3::Type _tMax) const;
+	bool			IntersectTri(HitInfo& _hitInfo, const Ray& _ray, const Triangle& _tri, double _tMin, double _tMax) const;
 	void			GetTriBarycentric(const Triangle& _tri, const Vector3& _p, Vector3& _result) const;
 	Vector3			CalculateNormal(const Triangle& _tri, const Vector3 &_weight) const;
 
