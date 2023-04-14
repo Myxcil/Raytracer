@@ -11,7 +11,7 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(1000),
+	samplesPerPixel(10),
 	maxRaycastDepth(0),
 	maxRenderThreads(0),
 	isRunning(false),
@@ -44,16 +44,19 @@ Raytracer::~Raytracer()
 void Raytracer::CleanupThreads()
 {
 	isRunning = false;
-	for (size_t i = 0; i < renderThreads.size(); ++i)
+	if (renderThreads.size() > 0)
 	{
-		if (renderThreads[i]->joinable())
+		for (size_t i = 0; i < renderThreads.size(); ++i)
 		{
-			renderThreads[i]->join();
+			if (renderThreads[i]->joinable())
+			{
+				renderThreads[i]->join();
+			}
+			delete renderThreads[i];
 		}
-		delete renderThreads[i];
+		renderThreads.clear();
+		Helper::Log(_T("Cleaned render threads\n"));
 	}
-	renderThreads.clear();
-	Helper::Log(_T("Cleaned render threads\n"));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -151,7 +154,7 @@ bool Raytracer::IsRunning()
 //----------------------------------------------------------------------------------------------------------------------------------------
 void Raytracer::TraceScene(int _threadIndex)
 {
-	Helper::Log(_T("Launched thread #%d)\n"), _threadIndex);
+	//Helper::Log(_T("Launched thread #%d)\n"), _threadIndex);
 
 	while (true)	
 	{
@@ -184,12 +187,12 @@ void Raytracer::TraceScene(int _threadIndex)
 		}
 	}
 
+	/*
 	LARGE_INTEGER endTime;
 	QueryPerformanceCounter(&endTime);
-
 	double duration = rcpTimerFreq * (endTime.QuadPart - timeStamp.QuadPart);
 	Helper::Log(_T("Thread #%d finished after %f\n"), _threadIndex, duration);
-
+	*/
 	mutexRenderThreads.lock();
 	{
 		renderFinished[_threadIndex] = true;
@@ -217,15 +220,22 @@ Color Raytracer::EvaluateColor(const Ray& _ray, Vector3::Type _tMin, Vector3::Ty
 		return emitted;
 	}
 
+	// 'Russian Roulette' ray termination,
+	// when accumulated light (throughput) gets "too low".
+	// Each iteration which doesn't involve a 100% reflection
+	// will reduce the throughput and make it more likely that
+	// this ray terminates
 	Vector3::Type threshold = fmin(0.999,fmax(fmax(throughput.x,throughput.y),throughput.z));
 	if (Helper::Random() >= threshold)
 	{
 		return emitted;
 	}
-
+	
 	Ray nextRay = Ray(hitInfo.point, scatterInfo.direction);
 	nextRay.origin += nextRay.direction * 0.000001;
 
+	// attenuation from ScatterInfo already contains factors 
+	// like cosTheta or PI, calculated in the material
 	Vector3 attenuation = scatterInfo.attenuation / threshold;
 	throughput *= attenuation;
 

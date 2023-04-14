@@ -42,3 +42,16 @@ Vector3 Vector3::Div(const Vector3& _a, const Vector3& _b)
 	}
 	return v;
 }
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+void Vector3::ConstructBasis(const Vector3& _forward, Vector3& _right, Vector3& _up)
+{
+	_up = Vector3(0,1,0);
+	if (fabs(Dot(_up, _forward)) > 0.99)
+	{
+		_up = Vector3(0,0,1);
+	}
+	_right = Vector3::Cross(_up, _forward);
+	_right.Normalize();
+	_up = Vector3::Cross(_forward, _right);
+}

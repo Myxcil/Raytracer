@@ -41,17 +41,9 @@ LambertMaterial::LambertMaterial(const Texture* _albedo) :
 //----------------------------------------------------------------------------------------------------------------------------------------
 bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const
 {
-	Vector3 scatterDir = Helper::RandomUnitHemisphere(_hitInfo.surfaceNormal);
-	scatterDir += _hitInfo.surfaceNormal;
-	if (scatterDir.NearZero())
-	{
-		scatterDir = _hitInfo.surfaceNormal;
-	}
-	else
-	{
-		scatterDir.Normalize();
-	}
-	_scatterInfo.direction = scatterDir;
+	// FIX ME!!! BAD RAYS ?!
+	//_scatterInfo.direction = Helper::RandomCosineHemisphere(_hitInfo.surfaceNormal);
+	_scatterInfo.direction = Helper::RandomUnitHemisphere(_hitInfo.surfaceNormal);
 
 	_scatterInfo.attenuation = SampleAlbedo(_hitInfo) * M_1_PI;
 	_scatterInfo.attenuation *= Vector3::Dot(_hitInfo.surfaceNormal, _scatterInfo.direction);

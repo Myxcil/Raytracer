@@ -70,6 +70,8 @@ struct Vector3
 	static Vector3		Max(const Vector3& _a, const Vector3& _b) { return Vector3(max(_a.x,_b.x),max(_a.y,_b.y),max(_a.z,_b.z)); }
 
 	UINT32				ToRGB(Vector3::Type _scale) const;
+
+	static void			ConstructBasis(const Vector3& _forward, Vector3& _right, Vector3& _up);
 };
 
 //------------------------------------------------------------------------------------------------------------------------------------
@@ -100,6 +102,14 @@ struct Helper
 	}
 
 	//------------------------------------------------------------------------------------------------------------------------------------
+	static Vector3::Type RandomGauss()
+	{
+		static std::normal_distribution<Vector3::Type> distribution;
+		static std::mt19937 generator;
+		return distribution(generator);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------------------------
 	// random value [min,max[
 	static Vector3::Type Random(Vector3::Type _min, Vector3::Type _max)
 	{
@@ -109,8 +119,32 @@ struct Helper
 	//------------------------------------------------------------------------------------------------------------------------------------
 	static Vector3 RandomUnitSphere()
 	{
-		Vector3 v(Random(-1,1), Random(-1,1), Random(-1,1));
+		Vector3 v(RandomGauss(),RandomGauss(),RandomGauss());
 		v.Normalize();
+		return v;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------------------------
+	static Vector3 RandomDiscXZ()
+	{
+		Vector3::Type r = Random();
+		Vector3::Type theta = Random(0, M_PI_2);
+		return Vector3(r * cos(theta), 0, r * sin(theta));
+	}
+
+	//------------------------------------------------------------------------------------------------------------------------------------
+	static Vector3 RandomDiscXZUniform()
+	{
+		Vector3::Type r = sqrt(Random());
+		Vector3::Type theta = Random(0, M_PI_2);
+		return Vector3(r * cos(theta), 0, r * sin(theta));
+	}
+
+	//------------------------------------------------------------------------------------------------------------------------------------
+	static Vector3 RandomCosineHemisphere()
+	{
+		Vector3 v = RandomDiscXZ();
+		v.y = sqrt(1.0 - v.x*v.x - v.z*v.z);
 		return v;
 	}
 
@@ -126,9 +160,13 @@ struct Helper
 	}
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	static int RandomInt(int min, int max)
+	static Vector3 RandomCosineHemisphere(const Vector3& _normal)
 	{
-		return static_cast<int>(Random(min, max + 1));
+		Vector3 zAxis, xAxis;
+		Vector3::ConstructBasis(_normal, zAxis, xAxis);
+
+		Vector3 v = RandomCosineHemisphere();
+		return v.x * xAxis + v.y * _normal + v.z * zAxis;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------------------------

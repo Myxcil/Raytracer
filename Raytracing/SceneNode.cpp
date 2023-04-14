@@ -120,10 +120,30 @@ void SceneNode::Raycast(HitInfo& _hitInfo, const Ray& _ray, Vector3::Type _tMin,
 			{
 				child[0]->Raycast(_hitInfo, _ray, _tMin, _tMax);
 			}
-			if (child[1] != nullptr && child)
+			if (child[1] != nullptr)
 			{
-				child[1]->Raycast(_hitInfo, _ray, _tMin, _tMax);
+				HitInfo temp;
+				child[1]->Raycast(temp, _ray, _tMin, _tMax);
+				if (temp.distance < _hitInfo.distance)
+				{
+					_hitInfo = temp;
+				}
 			}
 		}
 	}
 }
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+//
+//  Sweep SAH BVH
+// 
+//  minF = +INF
+//	foreach(axis)
+//		for(int i=1; i < N;++i)
+//			f = AABB(elemnts[0,i[).SurfaceArea * i - AABB(elements[i,N[).SurfaceArea * (N-i)
+//			if f < minF:
+//				minF = f
+//				splitAxis = axis
+//				splitIndex = i
+// 
+//----------------------------------------------------------------------------------------------------------------------------------------

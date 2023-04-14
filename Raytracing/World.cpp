@@ -96,13 +96,12 @@ void World::InitCornellBox(Camera& _camera)
 	// test objects
 	Material* matBlue = new LambertMaterial(&ConstantColor::BLUE);
 	worldObjects.push_back(new Sphere(Vector3(-0.5, -0.75, 0.25), 0.25, matBlue));
-	/*
-	Material* matGlass = new DielectricMaterial(1.5f);
-	worldObjects.push_back(new Sphere(Vector3(0, -0.75, -0.5), 0.25, matGlass));
 
-	Material* matMetal = new MetalMaterial(&ConstantColor::WHITE, 0);
-	worldObjects.push_back(new Sphere(Vector3(0.5, -0.75, 0.25), 0.25, matMetal));
-	*/
+	//Material* matGlass = new DielectricMaterial(1.5f);
+	worldObjects.push_back(new Sphere(Vector3(0, -0.75, -0.5), 0.25, matRed));
+
+	//Material* matMetal = new MetalMaterial(&ConstantColor::WHITE, 0);
+	worldObjects.push_back(new Sphere(Vector3(0.5, -0.75, 0.25), 0.25, matWhite));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -118,17 +117,19 @@ void World::InitTestscene(Camera& _camera)
 
 	Texture* checkerboard = new CheckerTexture(&ConstantColor::BLACK, &ConstantColor::WHITE, Vector3(4, 4, 4));
 	Material* matCheckerboard = new LambertMaterial(checkerboard);
-
-	Material* matRed = new MetalMaterial(&ConstantColor::RED, 0.05);
-	Material* matGreen = new LambertMaterial(&ConstantColor::GREEN);
-	Material* matBlue = new LambertMaterial(&ConstantColor::BLUE);
 	worldObjects.push_back(new Sphere(Vector3(0, 1, -1), 1, matCheckerboard));
-	worldObjects.push_back(new Sphere(Vector3(-2, 1, 1), 1, matGreen));
-	worldObjects.push_back(new Sphere(Vector3(2, 1, 1), 1, matBlue));
+
+	Material* matRed = new MetalMaterial(&ConstantColor::RED, 0);
 	worldObjects.push_back(new Sphere(Vector3(-3, 2, -3), 2, matRed));
 
-	Material* lightWhite = new DiffuseLight(Color(4, 4, 4));
-	worldObjects.push_back(new Sphere(Vector3(0, 5, 0), 1, lightWhite));
+	Material* matGreen = new LambertMaterial(&ConstantColor::GREEN);
+	worldObjects.push_back(new Sphere(Vector3(-2.5, 1, 3), 1, matGreen));
+
+	Material* matBlue = new LambertMaterial(&ConstantColor::BLUE);
+	worldObjects.push_back(new Sphere(Vector3(2, 1, 0), 1, matBlue));
+
+	Material* lightWhite = new DiffuseLight(Color(10, 10, 10));
+	worldObjects.push_back(new Sphere(Vector3(0, 10, 0), 1, lightWhite));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -143,6 +144,7 @@ void World::InitTeapot(Camera& _camera)
 	worldObjects.push_back(new InfinitePlane(Vector3(0, 0, 0), Vector3(0, 1, 0), true, matGrey));
 
 	Material* matGreen = new LambertMaterial(&ConstantColor::GREEN);
+	worldObjects.push_back(new TriangleMesh(Vector3(0,0,0), _T("Data/teapot.obj"), 1.0f, matGreen));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
