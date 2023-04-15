@@ -11,7 +11,7 @@ class Material;
 struct HitInfo
 {
 	bool					isHit;
-	double			distance;
+	double					distance;
 	Vector3					point;
 	Vector3					surfaceNormal;
 	Vector3					uvw;
@@ -46,6 +46,7 @@ public:
 	
 	//------------------------------------------------------------------------------------------------------------------------------------
 	const AABB&		GetAABB() const { return aabb; }
+	bool			IsEmissive() const;
 
 protected:
 	//------------------------------------------------------------------------------------------------------------------------------------

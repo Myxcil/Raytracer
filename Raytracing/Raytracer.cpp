@@ -207,10 +207,15 @@ void Raytracer::TraceScene(int _threadIndex)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
+const int MAX_DEPTH = 32;
+
+//----------------------------------------------------------------------------------------------------------------------------------------
 Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int _depth, Vector3 _throughput)
 {
-	if (_depth >= 16)
+	if (_depth >= MAX_DEPTH)
+	{
 		return Color::ZERO;
+	}
 
 	maxRaycastDepth = max(maxRaycastDepth, _depth);
 

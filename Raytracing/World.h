@@ -34,6 +34,7 @@ private:
 	bool				useAABB;
 	const SceneNode*	root;
 	TraceableObjects	singleObjects;
+	TraceableObjects	lights;
 
 	Color				backGround;
 	bool				useEnviromentBackground;

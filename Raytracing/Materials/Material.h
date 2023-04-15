@@ -25,6 +25,7 @@ public:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	virtual bool	Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const = 0;
 	virtual Color	Emitted(const Vector3& _uvw, const Vector3& _point) const { return Color(0,0,0); }
+	virtual bool	IsEmissive() const { return false; }
 
 protected:
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -94,6 +95,7 @@ public:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	bool	Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const override { return false; }
 	Color	Emitted(const Vector3& _uvw, const Vector3& _point) const override							{ return emit; }
+	bool	IsEmissive() const override																	{ return true; }
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------

@@ -162,6 +162,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //----------------------------------------------------------------------------------------------------------------------------------------
 void OnResize()
 {
+	if (raytracer != NULL && raytracer->IsRunning())
+		return;
+
 	RECT rect;
 	GetClientRect(hWnd, &rect);
 
