@@ -1,6 +1,14 @@
 #include "pch.h"
 #include "Math.h"
 
+//------------------------------------------------------------------------------------------------------------------------------------
+const Vector3	Vector3::ZERO(0,0,0);
+const Vector3	Vector3::ONE(1,1,1);
+const Vector3	Vector3::HALF(0.5,0.5,0.5);
+const Vector3	Vector3::UNIT_X(1,0,0);
+const Vector3	Vector3::UNIT_Y(0,1,0);
+const Vector3	Vector3::UNIT_Z(0,0,1);
+
 //----------------------------------------------------------------------------------------------------------------------------------------
 Vector3 Vector3::Refract(const Vector3& _d, const Vector3& _n, double _eta_over_etaPrime)
 {
@@ -18,7 +26,6 @@ UINT32 Vector3::ToRGB(double _scale) const
 {
 	Vector3 scaled(sqrt(x*_scale),sqrt(y*_scale),sqrt(z*_scale));
 	scaled.Saturate();
-
 	unsigned char r = static_cast<unsigned char>(scaled.x * 255.0f);
 	unsigned char g = static_cast<unsigned char>(scaled.y * 255.0f);
 	unsigned char b = static_cast<unsigned char>(scaled.z * 255.0f);
@@ -57,6 +64,12 @@ void Vector3::ConstructBasis(const Vector3& _forward, Vector3& _right, Vector3& 
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
+Vector3 Vector3::Transform(const Vector3& _xAxis, const Vector3& _yAxis, const Vector3& _zAxis) const
+{
+	return x * _xAxis + y * _yAxis + z * _zAxis;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
 void Helper::Log(const TCHAR* _szFormat, ...)
 {
 	static TCHAR szBuffer[1024];
@@ -70,17 +83,20 @@ void Helper::Log(const TCHAR* _szFormat, ...)
 //----------------------------------------------------------------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------------------------------------------------------------
-static void FromAngleAxis(Quaternion& _q, const Vector3& _axis, double _degree)
+const Quaternion Quaternion::IDENTITY(0,0,0,1);
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+static void FromAngleAxis(Quaternion& _q, const Vector3& _axis, double _radians)
 {
-	const double halfAngle = 0.5 * _degree * M_PI / 180.0;
+	const double halfAngle = 0.5 * _radians;
 
 	const double fcos = cos(halfAngle);
 	const double fsin = sin(halfAngle);
 
-	_q.v[0] = _axis.v[0] * fsin;
-	_q.v[1] = _axis.v[1] * fsin;
-	_q.v[2] = _axis.v[2] * fsin;
-	_q.v[3] = fcos;
+	_q.x = _axis.x * fsin;
+	_q.y = _axis.y * fsin;
+	_q.z = _axis.z * fsin;
+	_q.w = fcos;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -134,21 +150,17 @@ Quaternion::Quaternion(const Vector3& _from, const Vector3& _to)
 //----------------------------------------------------------------------------------------------------------------------------------------
 Vector3 Quaternion::Rotate(const Vector3& _v) const
 {
-	Quaternion qv = Quaternion(_v.x, _v.y, _v.z, 1.0);
-	Quaternion r = *this * qv * Conjugate();
-	return Vector3(r.x, r.y, r.z);
+	Vector3 uv = Vector3::Cross(vector, _v);
+	Vector3 uuv = Vector3::Cross(vector, uv);
+	return _v + (2.0 * scalar * uv) + (2.0 * uuv);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-Quaternion& Quaternion::operator*=(const Quaternion& _q)
+Quaternion Quaternion::operator*(const Quaternion& _q) const
 {
-	const double qx = (v[1] * _q.v[2] - v[2] * _q.v[1]) + v[0] * _q.v[3] + _q.v[0] * v[3];
-	const double qy = (v[2] * _q.v[0] - v[0] * _q.v[2]) + v[1] * _q.v[3] + _q.v[1] * v[3];
-	const double qz = (v[0] * _q.v[1] - v[1] * _q.v[0]) + v[2] * _q.v[3] + _q.v[2] * v[3];
-	const double qw = v[3] * _q.v[3] - (v[0] * _q.v[0] + v[1] * _q.v[1] + v[2] * _q.v[2]);
-	v[0] = qx;
-	v[1] = qy;
-	v[2] = qz;
-	v[3] = qw;
-	return *this;
+	const double qx = (y * _q.z - _q.z * y) + x * _q.w + _q.x * w;
+	const double qy = (z * _q.x - _q.x * z) + y * _q.w + _q.y * w;
+	const double qz = (x * _q.y - _q.y * x) + z * _q.w + _q.z * w;
+	const double qw = w * _q.w - (x * _q.x + y * _q.y + z * _q.z);
+	return Quaternion(qx, qy, qz, qw);
 }

@@ -60,8 +60,12 @@ private:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			CleanupThreads();
 	void			SetPixel(int _x, int _y, const Color& _color);
+	void			SetPixel(int _x, int _y, UINT32 _color);
 	
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			TraceScene(int _threadIndex);
 	Color			EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int depth, Vector3 throughput);
+
+	//------------------------------------------------------------------------------------------------------------------------------------
+	bool			PlotImage();
 };

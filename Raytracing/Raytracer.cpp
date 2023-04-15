@@ -11,7 +11,7 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(10),
+	samplesPerPixel(100),
 	maxRaycastDepth(0),
 	maxRenderThreads(0),
 	isRunning(false),
@@ -89,6 +89,16 @@ void Raytracer::Resize(int _width, int _height)
 //----------------------------------------------------------------------------------------------------------------------------------------
 void Raytracer::Run()
 {
+	Vector3 v = Vector3::UNIT_X;
+	Quaternion q(Vector3::UNIT_Y, 0.5 * M_PI);
+	Vector3 w = q.Rotate(v);
+
+	if (PlotImage())
+	{
+		isFinished = true;
+		return;
+	}
+
 	if (isRunning)
 		return;
 
@@ -225,7 +235,7 @@ Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int 
 	// Each iteration which doesn't involve a 100% reflection
 	// will reduce the throughput and make it more likely that
 	// this ray terminates
-	double threshold = fmin(0.999,fmax(fmax(throughput.x,throughput.y),throughput.z));
+	double threshold = fmin(0.999, throughput.Max());
 	if (Helper::Random() >= threshold)
 	{
 		return emitted;
@@ -246,6 +256,34 @@ Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int 
 void Raytracer::SetPixel(int _x, int _y, const Color& _color)
 {
 	float scale = 1.0f / samplesPerPixel;
+	SetPixel(_x, _y, _color.ToRGB(scale));
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+void Raytracer::SetPixel(int _x, int _y, UINT32 _color)
+{
 	UINT32* pixel = static_cast<UINT32*>(imageBuffer);
-	pixel[_x + _y * imageWidth] = _color.ToRGB(scale);
+	pixel[_x + _y * imageWidth] = _color;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+bool Raytracer::PlotImage()
+{
+	return false;
+
+	/*
+	// show random samples
+	int dim = imageHeight;
+	int numSamples = 1000;
+	int xOff = (imageWidth - dim) >> 1;
+	for (int i = 0; i < numSamples; ++i)
+	{
+		Vector3 v = Helper::RandomDiscXZUniform();
+		v += Vector3::ONE;
+		v *= 0.5f;
+		int px = xOff + round(v.x * dim);
+		int py = round(v.z * dim);
+		SetPixel(px, py, 0xffffffff);
+	}
+	*/
 }

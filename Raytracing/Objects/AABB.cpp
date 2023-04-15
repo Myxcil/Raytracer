@@ -64,8 +64,8 @@ void AABB::Raycast(HitInfo& _hitInfo, const Ray& _ray, double _tMin, double _tMa
 	Vector3 t0 = Vector3::Min(rMin, rMax);
 	Vector3 t1 = Vector3::Max(rMin, rMax);
 
-	double tNear = max(max(t0.x, t0.y), t0.z);
-	double tFar = min(min(t1.x, t1.y), t1.z);
+	double tNear = t0.Max();
+	double tFar =  t1.Min();
 
 	if (tNear < tFar)
 	{

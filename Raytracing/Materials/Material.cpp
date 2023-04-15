@@ -41,13 +41,12 @@ LambertMaterial::LambertMaterial(const Texture* _albedo) :
 //----------------------------------------------------------------------------------------------------------------------------------------
 bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const
 {
-	// FIX ME!!! BAD RAYS ?!
 	_scatterInfo.direction = Helper::RandomCosineHemisphere(_hitInfo.surfaceNormal);
-	//_scatterInfo.direction = Helper::RandomUnitHemisphere(_hitInfo.surfaceNormal);
-
-	_scatterInfo.attenuation = SampleAlbedo(_hitInfo) * M_1_PI;
+	
+	// color component
+	_scatterInfo.attenuation = SampleAlbedo(_hitInfo) * M_1_PI;	
+	// cos(theta) term 
 	_scatterInfo.attenuation *= Vector3::Dot(_hitInfo.surfaceNormal, _scatterInfo.direction);
-	_scatterInfo.attenuation *= M_PI_2;
 
 	return true;
 }
