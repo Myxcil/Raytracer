@@ -43,10 +43,8 @@ bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterI
 {
 	_scatterInfo.direction = Helper::RandomCosineHemisphere(_hitInfo.surfaceNormal);
 	
-	// color component
-	_scatterInfo.attenuation = SampleAlbedo(_hitInfo) * M_1_PI;	
-	// cos(theta) term 
-	_scatterInfo.attenuation *= Vector3::Dot(_hitInfo.surfaceNormal, _scatterInfo.direction);
+	const double cosTheta = fmax(0,Vector3::Dot(_hitInfo.surfaceNormal, _scatterInfo.direction));
+	_scatterInfo.attenuation = SampleAlbedo(_hitInfo) * cosTheta * M_1_PI;
 
 	return true;
 }

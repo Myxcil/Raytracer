@@ -11,7 +11,7 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(100),
+	samplesPerPixel(1024),
 	maxRaycastDepth(0),
 	maxRenderThreads(0),
 	isRunning(false),
@@ -89,10 +89,6 @@ void Raytracer::Resize(int _width, int _height)
 //----------------------------------------------------------------------------------------------------------------------------------------
 void Raytracer::Run()
 {
-	Vector3 v = Vector3::UNIT_X;
-	Quaternion q(Vector3::UNIT_Y, 0.5 * M_PI);
-	Vector3 w = q.Rotate(v);
-
 	if (PlotImage())
 	{
 		isFinished = true;
