@@ -11,7 +11,7 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(1024),
+	samplesPerPixel(100),
 	maxRaycastDepth(0),
 	maxRenderThreads(0),
 	isRunning(false),
@@ -207,9 +207,12 @@ void Raytracer::TraceScene(int _threadIndex)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int depth, Vector3 throughput)
+Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int _depth, Vector3 _throughput)
 {
-	maxRaycastDepth = max(maxRaycastDepth, depth);
+	if (_depth >= 16)
+		return Color::ZERO;
+
+	maxRaycastDepth = max(maxRaycastDepth, _depth);
 
 	HitInfo hitInfo;
 	world->Raycast(hitInfo, _ray, _tMin, _tMax);
@@ -231,7 +234,7 @@ Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int 
 	// Each iteration which doesn't involve a 100% reflection
 	// will reduce the throughput and make it more likely that
 	// this ray terminates
-	double threshold = fmin(0.999, throughput.Max());
+	double threshold = fmin(0.999, _throughput.Max());
 	if (Helper::Random() >= threshold)
 	{
 		return emitted;
@@ -243,9 +246,9 @@ Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int 
 	// attenuation from ScatterInfo already contains factors 
 	// like cosTheta or PI, calculated in the material
 	Vector3 attenuation = scatterInfo.attenuation / threshold;
-	throughput *= attenuation;
+	_throughput *= attenuation;
 
-	return emitted + attenuation * EvaluateColor(nextRay , 0.001, DBL_MAX, depth + 1, throughput);
+	return emitted + attenuation * EvaluateColor(nextRay , 0.001, DBL_MAX, _depth + 1, _throughput);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
