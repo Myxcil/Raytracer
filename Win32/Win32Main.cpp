@@ -15,6 +15,10 @@ BITMAPINFO bitmapInfo;
 
 Raytracer* raytracer = nullptr;
 
+int resolutionShift = 1;
+int width = 1280 >> resolutionShift;
+int height = 720 >> resolutionShift;
+
 //----------------------------------------------------------------------------------------------------------------------------------------
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -88,7 +92,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             InvalidateRect(hWnd, nullptr, TRUE);
         }
 
-        Sleep(0);
+        Sleep(16);
     }
 
     delete raytracer;
@@ -128,10 +132,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    RECT rect;
    ZeroMemory(&rect,sizeof(rect));
-   rect.right = 640;
-   rect.bottom = 360;
-   //rect.right = 1280;
-   //rect.bottom = 720;
+   rect.right = width;
+   rect.bottom = height;
    AdjustWindowRect(&rect, dwStyle, FALSE);
 
    int width = (rect.right - rect.left);

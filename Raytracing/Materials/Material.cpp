@@ -78,7 +78,7 @@ DielectricMaterial::DielectricMaterial(double _refractionIndex) :
 //----------------------------------------------------------------------------------------------------------------------------------------
 bool DielectricMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const
 {
-	_scatterInfo.attenuation = Color(1,1,1);
+	_scatterInfo.attenuation = Color::ONE;
 
 	double refractionRatio = _hitInfo.frontFace ? 1.0/refractionIndex : refractionIndex;
 
