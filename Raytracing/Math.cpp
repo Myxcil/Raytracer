@@ -24,7 +24,11 @@ Vector3 Vector3::Refract(const Vector3& _d, const Vector3& _n, double _eta_over_
 //----------------------------------------------------------------------------------------------------------------------------------------
 UINT32 Vector3::ToRGB(double _scale) const
 {
-	Vector3 scaled(sqrt(x*_scale),sqrt(y*_scale),sqrt(z*_scale));
+	double fr = (x != x) ? 0 : x;
+	double fg = (y != y) ? 0 : y;
+	double fb = (z != z) ? 0 : z;
+
+	Vector3 scaled(sqrt(fr*_scale),sqrt(fg*_scale),sqrt(fb*_scale));
 	scaled.Saturate();
 	unsigned char r = static_cast<unsigned char>(scaled.x * 255.0f);
 	unsigned char g = static_cast<unsigned char>(scaled.y * 255.0f);
@@ -51,16 +55,12 @@ Vector3 Vector3::Div(const Vector3& _a, const Vector3& _b)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Vector3::ConstructBasis(const Vector3& _forward, Vector3& _right, Vector3& _up)
+void Vector3::ConstructBasis(const Vector3& _a, Vector3& _b, Vector3& _c)
 {
-	_up = Vector3(0,1,0);
-	if (fabs(Dot(_up, _forward)) > 0.99)
-	{
-		_up = Vector3(0,0,1);
-	}
-	_right = Vector3::Cross(_up, _forward);
-	_right.Normalize();
-	_up = Vector3::Cross(_forward, _right);
+	_c = fabs(_a.y) < 0.99 ? Vector3::UNIT_Y : Vector3::UNIT_Z;
+	_b = Vector3::Cross(_c, _a);
+	_b.Normalize();
+	_c = Vector3::Cross(_a, _b);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -164,3 +164,6 @@ Quaternion Quaternion::operator*(const Quaternion& _q) const
 	const double qw = w * _q.w - (x * _q.x + y * _q.y + z * _q.z);
 	return Quaternion(qx, qy, qz, qw);
 }
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+const Transfrom Transfrom::IDENTITY = Transfrom(Vector3::UNIT_X, Vector3::UNIT_Y, Vector3::UNIT_Z);

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Quad.h"
+#include "../HitInfo.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 Quad::Quad(const Vector3& _center, const Vector3& _normal, const Vector3& _size, Material* _material) :
@@ -16,7 +17,9 @@ Quad::Quad(const Vector3& _center, const Vector3& _normal, const Vector3& _size,
 	}
 	v = Vector3::Cross(u, normal);
 
-	//ConstructAABB();
+	area = size.x * size.y;
+
+	ConstructAABB();
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -54,4 +57,31 @@ void Quad::ConstructAABB()
 	{
 		aabb.Merge(points[i]);
 	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+double Quad::PDFValue(const HitInfo& _hitInfo) const
+{
+	Ray ray = Ray(_hitInfo.point, _hitInfo.scatterDirection);
+	
+	HitInfo temp;
+	Raycast(temp, ray, 0.0001, DBL_MAX);
+	if (!temp.isHit)
+		return 0;
+
+	const double distSq = temp.distance * temp.distance;
+	const double cosine = abs(Vector3::Dot(temp.surfaceNormal, _hitInfo.scatterDirection));
+
+	return distSq / (cosine * area);
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+Vector3 Quad::PDFGenerate(const HitInfo& _hitInfo) const
+{
+	const double s = Helper::Random(-1,1);
+	const double t = Helper::Random(-1,1);
+	Vector3 p = center + s * u * size.x + t * v * size.y;
+	p -= _hitInfo.point;
+	p.Normalize();
+	return p;
 }

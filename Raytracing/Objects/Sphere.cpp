@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Sphere.h"
+#include "../HitInfo.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 Sphere::Sphere(const Vector3& _center, double _radius, Material* _material) : TraceableObject(_center, _material)

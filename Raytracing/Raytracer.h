@@ -65,6 +65,7 @@ private:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	void			TraceScene(int _threadIndex);
 	Color			EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int _depth, Vector3 _throughput);
+	void			EvaluatePDF(HitInfo& _hitInfo);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 	bool			PlotImage();

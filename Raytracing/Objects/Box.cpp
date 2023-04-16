@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Box.h"
 #include "Quad.h"
+#include "../HitInfo.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 Box::Box(const Vector3& _center, const Vector3& _size, Material* _material) :

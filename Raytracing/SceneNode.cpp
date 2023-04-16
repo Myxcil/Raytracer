@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "SceneNode.h"
+#include "HitInfo.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 SceneNode::SceneNode(TraceableObjects& _list, size_t _first, size_t _end, int _depth) : 

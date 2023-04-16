@@ -4,34 +4,7 @@
 #include <vector>
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-class TraceableObject;
 class Material;
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-struct HitInfo
-{
-	bool					isHit;
-	double					distance;
-	Vector3					point;
-	Vector3					surfaceNormal;
-	Vector3					uvw;
-	bool					frontFace;
-	const Material*			material;
-	const TraceableObject*	object;
-
-	//------------------------------------------------------------------------------------------------------------------------------------
-	HitInfo() :
-		isHit(false),
-		distance(DBL_MAX)
-	{
-	}
-
-	inline void SetNormal(const Vector3& _rayDirection, const Vector3& _normal)
-	{
-		frontFace = Vector3::Dot(_rayDirection, _normal) < 0;
-		surfaceNormal = frontFace ? _normal : -_normal;
-	}
-};
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 class TraceableObject
@@ -47,6 +20,10 @@ public:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	const AABB&		GetAABB() const { return aabb; }
 	bool			IsEmissive() const;
+
+	//------------------------------------------------------------------------------------------------------------------------------------
+	virtual double	PDFValue(const HitInfo& _hitInfo) const		{ return 0; }
+	virtual Vector3	PDFGenerate(const HitInfo& _hitInfo) const	{ return Vector3::UNIT_X; }
 
 protected:
 	//------------------------------------------------------------------------------------------------------------------------------------

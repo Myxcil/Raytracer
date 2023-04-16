@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "Material.h"
-#include "../Objects/TraceableObject.h"
+#include "../HitInfo.h"
 #include "Texture.h"
+#include "PDF.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 Material::Material(const Texture* _albedo) :
@@ -39,15 +40,20 @@ LambertMaterial::LambertMaterial(const Texture* _albedo) :
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool LambertMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const
+bool LambertMaterial::Scatter(HitInfo& _hitInfo) const
 {
-	_scatterInfo.direction = Helper::RandomCosineHemisphere(_hitInfo.surfaceNormal);
-	
-	const double cosTheta = fmax(0,Vector3::Dot(_hitInfo.surfaceNormal, _scatterInfo.direction));
-	_scatterInfo.attenuation = SampleAlbedo(_hitInfo) * cosTheta * M_1_PI;
-
+	_hitInfo.attenuation = SampleAlbedo(_hitInfo);
+	_hitInfo.pdfType = PDFType::Cosine;
 	return true;
 }
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+double LambertMaterial::PDF(const HitInfo& _hitInfo) const
+{
+	const double cosTheta = Vector3::Dot(_hitInfo.surfaceNormal, _hitInfo.scatterDirection);
+	return cosTheta < 0 ? 0 : cosTheta * M_1_PI;
+}
+
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 //
@@ -59,11 +65,17 @@ MetalMaterial::MetalMaterial(const Texture* _albedo, double _fuzziness) :
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool MetalMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const
+bool MetalMaterial::Scatter(HitInfo& _hitInfo) const
 {
-	_scatterInfo.attenuation = SampleAlbedo(_hitInfo);
-	_scatterInfo.direction = Vector3::Reflect(_ray.direction, _hitInfo.surfaceNormal) + fuzziness * Helper::RandomUnitSphere();
-	return Vector3::Dot(_scatterInfo.direction, _hitInfo.surfaceNormal) > 0;
+	_hitInfo.isSpecular = true;
+
+	Vector3 reflected = Vector3::Reflect(_hitInfo.incoming, _hitInfo.surfaceNormal);
+	_hitInfo.scatterDirection = reflected + fuzziness * Helper::RandomUnitSphere();
+	_hitInfo.scatterDirection.Normalize();
+
+	_hitInfo.attenuation = SampleAlbedo(_hitInfo);
+
+	return true;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -76,25 +88,27 @@ DielectricMaterial::DielectricMaterial(double _refractionIndex) :
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool DielectricMaterial::Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const
+bool DielectricMaterial::Scatter(HitInfo& _hitInfo) const
 {
-	_scatterInfo.attenuation = Color::ONE;
+	_hitInfo.isSpecular = true;
+	_hitInfo.attenuation = Color::ONE;
 
 	double refractionRatio = _hitInfo.frontFace ? 1.0/refractionIndex : refractionIndex;
 
-	double cos_theta = fmin(Vector3::Dot(-_ray.direction, _hitInfo.surfaceNormal), 1.0);
-	double sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+	double cosTheta = Vector3::Dot(-_hitInfo.incoming, _hitInfo.surfaceNormal);
+	double sinTheta = sqrt(1.0 - cosTheta * cosTheta);
 
-	bool cantRefract = refractionRatio * sin_theta > 1.0;
-	double reflectance = CalcReflectance(cos_theta, refractionRatio);
+	bool cantRefract = refractionRatio * sinTheta > 1.0;
+	double reflectance = CalcReflectance(cosTheta, refractionRatio);
 	if (cantRefract || reflectance > Helper::Random())
 	{
-		_scatterInfo.direction = Vector3::Reflect(_ray.direction, _hitInfo.surfaceNormal);
+		_hitInfo.scatterDirection = Vector3::Reflect(_hitInfo.incoming, _hitInfo.surfaceNormal);
 	}
 	else 
 	{
-		_scatterInfo.direction = Vector3::Refract(_ray.direction, _hitInfo.surfaceNormal, refractionRatio);
+		_hitInfo.scatterDirection = Vector3::Refract(_hitInfo.incoming, _hitInfo.surfaceNormal, refractionRatio);
 	}
+	_hitInfo.scatterDirection.Normalize();
 	
 	return true;
 }
@@ -106,6 +120,7 @@ double DielectricMaterial::CalcReflectance(double _cosine, double _refractionInd
 	r0 = r0 * r0;
 	return r0 + (1.0 - r0) * pow((1.0 - _cosine), 5.0);
 }
+
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 //

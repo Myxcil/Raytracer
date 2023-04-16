@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "AABB.h"
 #include "TraceableObject.h"
+#include "../HitInfo.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 void AABB::Merge(const Vector3& _p)

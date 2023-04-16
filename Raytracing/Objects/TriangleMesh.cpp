@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TriangleMesh.h"
 #include "Sphere.h"
+#include "../HitInfo.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 TriangleMesh::TriangleMesh(const Vector3& _center, const TCHAR* _filename, double _scale, Material* _material) :

@@ -156,7 +156,9 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="Raytracing\Camera.h" />
+    <ClInclude Include="Raytracing\HitInfo.h" />
     <ClInclude Include="Raytracing\Materials\Material.h" />
+    <ClInclude Include="Raytracing\Materials\PDF.h" />
     <ClInclude Include="Raytracing\Materials\Texture.h" />
     <ClInclude Include="Raytracing\Objects\AABB.h" />
     <ClInclude Include="Raytracing\Objects\Box.h" />
@@ -190,6 +192,7 @@
     </ClCompile>
     <ClCompile Include="Raytracing\Camera.cpp" />
     <ClCompile Include="Raytracing\Materials\Material.cpp" />
+    <ClCompile Include="Raytracing\Materials\PDF.cpp" />
     <ClCompile Include="Raytracing\Materials\Texture.cpp" />
     <ClCompile Include="Raytracing\Objects\AABB.cpp" />
     <ClCompile Include="Raytracing\Objects\Box.cpp" />

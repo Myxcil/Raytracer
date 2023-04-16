@@ -20,6 +20,9 @@ public:
 	void				Init(Camera& _camera);
 	void				Raycast(HitInfo& _hitInfo, const Ray& _ray, double _tMin, double _tMax);
 	Color				SampleEnviroment(const Vector3& _rayDirection) const;
+	
+	//------------------------------------------------------------------------------------------------------------------------------------
+	const TraceableObjects* GetLights() const { return &lights; }
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------

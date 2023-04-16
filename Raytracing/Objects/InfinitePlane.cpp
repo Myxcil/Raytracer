@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "InfinitePlane.h"
+#include "../HitInfo.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 InfinitePlane::InfinitePlane(const Vector3& _center, const Vector3& _normal, bool _oneSided, Material* _material) :

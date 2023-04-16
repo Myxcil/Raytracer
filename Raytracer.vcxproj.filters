@@ -72,6 +72,12 @@
     <ClInclude Include="Raytracing\Materials\Material.h">
       <Filter>Raytracing\Materials</Filter>
     </ClInclude>
+    <ClInclude Include="Raytracing\Materials\PDF.h">
+      <Filter>Raytracing\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Raytracing\HitInfo.h">
+      <Filter>Raytracing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Raytracer.rc">
@@ -131,6 +137,9 @@
       <Filter>Raytracing\Materials</Filter>
     </ClCompile>
     <ClCompile Include="Raytracing\Materials\Texture.cpp">
+      <Filter>Raytracing\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="Raytracing\Materials\PDF.cpp">
       <Filter>Raytracing\Materials</Filter>
     </ClCompile>
   </ItemGroup>

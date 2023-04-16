@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TraceableObject.h"
 #include "../Materials/Material.h"
+#include "../HitInfo.h"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 TraceableObject::TraceableObject(const Vector3& _center, Material* _material) :

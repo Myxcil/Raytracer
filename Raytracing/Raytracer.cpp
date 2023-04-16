@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Raytracer.h"
 #include "World.h"
+#include "HitInfo.h"
 #include "Objects/TraceableObject.h"
 #include "Materials/Material.h"
 
@@ -11,7 +12,7 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(100),
+	samplesPerPixel(1000),
 	maxRaycastDepth(0),
 	maxRenderThreads(0),
 	isRunning(false),
@@ -76,7 +77,11 @@ void Raytracer::Resize(int _width, int _height)
 
 	unsigned long size = imageWidth * imageHeight * 4;
 	imageBuffer = new unsigned char[size];
-	ZeroMemory(imageBuffer, size);
+	UINT32* color = static_cast<UINT32*>(imageBuffer);
+	for (unsigned long i = 0; i < imageWidth * imageHeight; ++i)
+	{
+		color[i] = 0x00ff00ff;
+	}
 
 	float aspect = static_cast<float>(_width) / _height;
 	camera.SetAspect(aspect);
@@ -226,10 +231,11 @@ Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int 
 		return world->SampleEnviroment(_ray.direction);
 	}
 
-	Color emitted = hitInfo.material->Emitted(hitInfo.uvw, hitInfo.point);
+	hitInfo.incoming = _ray.direction;
 
-	ScatterInfo scatterInfo;
-	if (!hitInfo.material->Scatter(_ray, hitInfo, scatterInfo))
+	Color emitted = hitInfo.material->Emitted(hitInfo);
+
+	if (!hitInfo.material->Scatter(hitInfo))
 	{
 		return emitted;
 	}
@@ -244,16 +250,57 @@ Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int 
 	{
 		return emitted;
 	}
+
+	// Specular path
+	if (hitInfo.isSpecular)
+	{
+		Ray nextRay = Ray(hitInfo.point, hitInfo.scatterDirection);
+		nextRay.origin += nextRay.direction * 0.000001;
+
+		return hitInfo.attenuation * EvaluateColor( nextRay, 0.001, DBL_MAX, _depth + 1, _throughput);
+	}
+	// Diffuse path
+	else 
+	{
+		hitInfo.pdfObjects = world->GetLights();
+
+		EvaluatePDF(hitInfo);
+		if (hitInfo.pdfValue == 0)
+		{
+			return emitted;
+		}
+
+		Vector3 attenuation = hitInfo.attenuation / (hitInfo.pdfValue * threshold);
+		_throughput *= attenuation;
+
+		// next ray into scene
+		Ray nextRay = Ray(hitInfo.point, hitInfo.scatterDirection);
+		nextRay.origin += nextRay.direction * 0.000001;
+
+		return emitted + attenuation * hitInfo.material->PDF(hitInfo) * EvaluateColor(nextRay , 0.001, DBL_MAX, _depth + 1, _throughput);
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+void Raytracer::EvaluatePDF(HitInfo& _hitInfo)
+{
+	/**/
+	if (Helper::Random() < 0.5)
+	{
+		_hitInfo.scatterDirection = PDF::Generate(_hitInfo.pdfType, _hitInfo);
+	}
+	else
+	{
+		_hitInfo.scatterDirection = PDF::Generate(PDFType::Objects, _hitInfo);
+	}
 	
-	Ray nextRay = Ray(hitInfo.point, scatterInfo.direction);
-	nextRay.origin += nextRay.direction * 0.000001;
+	_hitInfo.pdfValue = 0.5 * PDF::Value(_hitInfo.pdfType, _hitInfo);
+	_hitInfo.pdfValue += 0.5 * PDF::Value(PDFType::Objects, _hitInfo);
 
-	// attenuation from ScatterInfo already contains factors 
-	// like cosTheta or PI, calculated in the material
-	Vector3 attenuation = scatterInfo.attenuation / threshold;
-	_throughput *= attenuation;
-
-	return emitted + attenuation * EvaluateColor(nextRay , 0.001, DBL_MAX, _depth + 1, _throughput);
+	/**
+	_hitInfo.scatterDirection = PDF::Generate(_hitInfo.pdfType, _hitInfo);
+	_hitInfo.pdfValue = PDF::Value(_hitInfo.pdfType, _hitInfo);
+	/**/
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

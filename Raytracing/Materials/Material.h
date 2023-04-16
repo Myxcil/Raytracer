@@ -5,13 +5,6 @@ struct HitInfo;
 class Texture;
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-struct ScatterInfo
-{
-	Vector3			attenuation;
-	Vector3			direction;
-};
-
-//----------------------------------------------------------------------------------------------------------------------------------------
 class Material
 {
 public:
@@ -23,9 +16,12 @@ public:
 	void			Release();
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	virtual bool	Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const = 0;
-	virtual Color	Emitted(const Vector3& _uvw, const Vector3& _point) const { return Color(0,0,0); }
+	virtual bool	Scatter(HitInfo& _hitInfo) const	{ return false; }
+	virtual double	PDF(const HitInfo& _hitInfo) const	{ return 0; }
+
+	//------------------------------------------------------------------------------------------------------------------------------------
 	virtual bool	IsEmissive() const { return false; }
+	virtual Color	Emitted(const HitInfo& _hitInfo) const { return Color(0,0,0); }
 
 protected:
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -46,7 +42,8 @@ class LambertMaterial : public Material
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	LambertMaterial(const Texture* _albedo);
-	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const override;
+	bool			Scatter(HitInfo& _hitInfo) const override;
+	double			PDF(const HitInfo& _hitInfo) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -57,7 +54,7 @@ class MetalMaterial : public Material
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	MetalMaterial(const Texture* _albedo, double _fuzziness);
-	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const override;
+	bool			Scatter(HitInfo& _hitInfo) const;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -72,7 +69,7 @@ class DielectricMaterial : public Material
 public:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	DielectricMaterial(double _refractionIndex);
-	bool			Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const override;
+	bool			Scatter(HitInfo& _hitInfo) const override;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -93,9 +90,8 @@ public:
 	DiffuseLight(const Color& _emit, bool _visible = true);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	bool	Scatter(const Ray& _ray, const HitInfo& _hitInfo, ScatterInfo& _scatterInfo) const override { return false; }
-	Color	Emitted(const Vector3& _uvw, const Vector3& _point) const override							{ return emit; }
-	bool	IsEmissive() const override																	{ return true; }
+	Color	Emitted(const HitInfo& _point) const override		{ return emit; }
+	bool	IsEmissive() const override							{ return true; }
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
