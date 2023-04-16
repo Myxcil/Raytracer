@@ -19,7 +19,7 @@ Quad::Quad(const Vector3& _center, const Vector3& _normal, const Vector3& _size,
 
 	area = size.x * size.y;
 
-	ConstructAABB();
+	//ConstructAABB();
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

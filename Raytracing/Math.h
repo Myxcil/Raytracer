@@ -231,5 +231,16 @@ struct Helper
 	}
 
 	//------------------------------------------------------------------------------------------------------------------------------------
+	static Vector3 RandomToSphere(double _radius, double _distanceSq)
+	{
+		const double r1 = Random();
+		const double r2 = Random();
+		const double z = 1.0 + r2 * (sqrt(1.0 - _radius * _radius / _distanceSq) - 1.0);
+		const double phi = 2.0 * M_PI * r1;
+		const double sqrtZ = sqrt(1.0 - z * z);
+		return Vector3(cos(phi) * sqrtZ, sin(phi) * sqrtZ, z);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------------------------
 	static void Log(const TCHAR* _szFormat, ...);
 };

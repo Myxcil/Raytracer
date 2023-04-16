@@ -12,7 +12,7 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(1000),
+	samplesPerPixel(100),
 	maxRaycastDepth(0),
 	maxRenderThreads(0),
 	isRunning(false),
@@ -78,9 +78,9 @@ void Raytracer::Resize(int _width, int _height)
 	unsigned long size = imageWidth * imageHeight * 4;
 	imageBuffer = new unsigned char[size];
 	UINT32* color = static_cast<UINT32*>(imageBuffer);
-	for (unsigned long i = 0; i < imageWidth * imageHeight; ++i)
+	for (int i = 0; i < imageWidth * imageHeight; ++i)
 	{
-		color[i] = 0x00ff00ff;
+		*color++ = 0x00ff00ff;
 	}
 
 	float aspect = static_cast<float>(_width) / _height;
@@ -191,7 +191,7 @@ void Raytracer::TraceScene(int _threadIndex)
 
 				camera.CalculateRay(tx, ty, ray);
 
-				finalColor += EvaluateColor(ray, camera.GetNearPlane(), DBL_MAX, 1, Color(1,1,1));
+				finalColor += EvaluateColor(ray, 0.001, DBL_MAX, 1, Color(1,1,1));
 			}
 
 			SetPixel(x, y, finalColor);
@@ -212,7 +212,7 @@ void Raytracer::TraceScene(int _threadIndex)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-const int MAX_DEPTH = 32;
+const int MAX_DEPTH = 64;
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int _depth, Vector3 _throughput)
@@ -222,6 +222,7 @@ Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int 
 		return Color::ZERO;
 	}
 
+	++totalDepth;
 	maxRaycastDepth = max(maxRaycastDepth, _depth);
 
 	HitInfo hitInfo;
@@ -245,7 +246,7 @@ Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int 
 	// Each iteration which doesn't involve a 100% reflection
 	// will reduce the throughput and make it more likely that
 	// this ray terminates
-	double threshold = fmin(0.999, _throughput.Max());
+	double threshold = _throughput.Max();
 	if (Helper::Random() >= threshold)
 	{
 		return emitted;
@@ -254,10 +255,13 @@ Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int 
 	// Specular path
 	if (hitInfo.isSpecular)
 	{
-		Ray nextRay = Ray(hitInfo.point, hitInfo.scatterDirection);
-		nextRay.origin += nextRay.direction * 0.000001;
+		Vector3 attenuation = hitInfo.attenuation / threshold;
+		_throughput *= attenuation;
 
-		return hitInfo.attenuation * EvaluateColor( nextRay, 0.001, DBL_MAX, _depth + 1, _throughput);
+		Ray nextRay = Ray(hitInfo.point, hitInfo.scatterDirection);
+		nextRay.origin += nextRay.direction * 0.0001;
+
+		return attenuation * EvaluateColor( nextRay, 0.001, DBL_MAX, _depth + 1, _throughput);
 	}
 	// Diffuse path
 	else 
@@ -275,7 +279,7 @@ Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int 
 
 		// next ray into scene
 		Ray nextRay = Ray(hitInfo.point, hitInfo.scatterDirection);
-		nextRay.origin += nextRay.direction * 0.000001;
+		nextRay.origin += nextRay.direction * 0.0001;
 
 		return emitted + attenuation * hitInfo.material->PDF(hitInfo) * EvaluateColor(nextRay , 0.001, DBL_MAX, _depth + 1, _throughput);
 	}

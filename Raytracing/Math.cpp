@@ -70,17 +70,6 @@ Vector3 Vector3::Transform(const Vector3& _xAxis, const Vector3& _yAxis, const V
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Helper::Log(const TCHAR* _szFormat, ...)
-{
-	static TCHAR szBuffer[1024];
-	va_list arg;
-	va_start(arg, _szFormat);
-	_vsnwprintf_s(szBuffer, sizeof(szBuffer), _szFormat, arg);
-	va_end(arg);
-	OutputDebugString(szBuffer);
-}
-
-//----------------------------------------------------------------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------------------------------------------------------------
 const Quaternion Quaternion::IDENTITY(0,0,0,1);
@@ -167,3 +156,16 @@ Quaternion Quaternion::operator*(const Quaternion& _q) const
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 const Transfrom Transfrom::IDENTITY = Transfrom(Vector3::UNIT_X, Vector3::UNIT_Y, Vector3::UNIT_Z);
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+// 
+//----------------------------------------------------------------------------------------------------------------------------------------
+void Helper::Log(const TCHAR* _szFormat, ...)
+{
+	static TCHAR szBuffer[1024];
+	va_list arg;
+	va_start(arg, _szFormat);
+	_vsnwprintf_s(szBuffer, sizeof(szBuffer), _szFormat, arg);
+	va_end(arg);
+	OutputDebugString(szBuffer);
+}

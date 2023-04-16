@@ -16,19 +16,17 @@ public:
 
 	void				CalculateRay(double _tx, double _ty, Ray& _ray) const;
 
-	double		GetNearPlane() const { return nearPlane; }
-
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	Vector3				position;
 	Vector3				direction;
 	Vector3				up;
 	Vector3				right;
-	double		nearPlane;
-	double		fieldOfView;
-	double		aspect;
-	double		nearPlaneWidth;
-	double		nearPlaneHeight;
+	double				nearPlane;
+	double				fieldOfView;
+	double				aspect;
+	double				nearPlaneWidth;
+	double				nearPlaneHeight;
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------

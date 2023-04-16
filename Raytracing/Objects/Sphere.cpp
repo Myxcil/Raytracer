@@ -22,7 +22,7 @@ Sphere::~Sphere()
 void Sphere::Raycast(HitInfo& _hitInfo, const Ray& _ray, double _tMin, double _tMax) const
 {
 	double t0,t1;
-	if (Intersect(_ray, center, radius, t0, t1))
+	if (HitSphere(_ray, center, radius, t0, t1))
 	{
 		double distance = t0;
 		if (distance < _tMin || distance > _tMax)
@@ -47,15 +47,7 @@ void Sphere::Raycast(HitInfo& _hitInfo, const Ray& _ray, double _tMin, double _t
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-void Sphere::CalcSphereUV(const Vector3& _point, Vector3& _uvw)
-{
-	double theta = acos(-_point.y);
-	double phi = atan2(-_point.z, _point.x) + M_PI;
-	_uvw = Vector3(phi * 0.5 * M_1_PI, theta * M_1_PI, 0);
-}
-
-//----------------------------------------------------------------------------------------------------------------------------------------
-bool Sphere::Intersect(const Ray& _ray, const Vector3& _center, double _radius, double& _t0, double& _t1)
+bool Sphere::HitSphere(const Ray& _ray, const Vector3& _center, double _radius, double& _t0, double& _t1)
 {
 	Vector3 offsetRayOrigin = _ray.origin - _center;
 
@@ -74,4 +66,39 @@ bool Sphere::Intersect(const Ray& _ray, const Vector3& _center, double _radius, 
 	_t1 = (-half_b + sqrt_d) / a;;
 
 	return true;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+void Sphere::CalcSphereUV(const Vector3& _point, Vector3& _uvw)
+{
+	double theta = acos(-_point.y);
+	double phi = atan2(-_point.z, _point.x) + M_PI;
+	_uvw = Vector3(phi * 0.5 * M_1_PI, theta * M_1_PI, 0);
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+double Sphere::PDFValue(const HitInfo& _hitInfo) const
+{
+	Ray ray = Ray(_hitInfo.point, _hitInfo.scatterDirection);
+
+	HitInfo temp;
+	Raycast(temp, ray, 0.0001, DBL_MAX);
+	if (!temp.isHit)
+		return 0;
+
+	Vector3 v = center - ray.origin;
+
+	const double cosThetaMax = sqrt(1.0 - radius*radius / v.LengthSq());
+	const double solidAngle = 2.0 * M_PI * (1.0 - cosThetaMax);
+
+	return 1.0 / solidAngle;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+Vector3 Sphere::PDFGenerate(const HitInfo& _hitInfo) const
+{
+	Vector3 dir = center - _hitInfo.point;
+	const double distSq = dir.LengthSq();
+	dir.Normalize();
+	return Transfrom(dir).Rotate(Helper::RandomToSphere(radius, distSq));
 }

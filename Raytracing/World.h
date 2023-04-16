@@ -22,7 +22,8 @@ public:
 	Color				SampleEnviroment(const Vector3& _rayDirection) const;
 	
 	//------------------------------------------------------------------------------------------------------------------------------------
-	const TraceableObjects* GetLights() const { return &lights; }
+	const TraceableObjects* GetWorldObjects() const { return &worldObjects; }
+	const TraceableObjects* GetLights() const		{ return &lights; }
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
