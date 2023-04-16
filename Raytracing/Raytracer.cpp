@@ -222,7 +222,6 @@ Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int 
 		return Color::ZERO;
 	}
 
-	++totalDepth;
 	maxRaycastDepth = max(maxRaycastDepth, _depth);
 
 	HitInfo hitInfo;
