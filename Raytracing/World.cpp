@@ -109,10 +109,10 @@ void World::InitCornellBox(Camera& _camera)
 	/**/
 	Material* matBlue = new LambertMaterial(&ConstantColor::BLUE);
 	worldObjects.push_back(new Sphere(Vector3(0, -0.5, 0.25), 0.5, matBlue));
-	/**
+	/**/
 	Material* matGlass = new DielectricMaterial(1.5f);
 	worldObjects.push_back(new Sphere(Vector3(-0.5, -0.75, -0.5), 0.25, matGlass));
-	/**
+	/**/
 	Material* matMetal = new MetalMaterial(&ConstantColor::WHITE, 0);
 	worldObjects.push_back(new Sphere(Vector3(0.5, -0.75, -0.5), 0.25, matMetal));
 	/**/

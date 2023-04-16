@@ -274,6 +274,10 @@ Color Raytracer::EvaluateColor(const Ray& _ray, double _tMin, double _tMax, int 
 		}
 
 		Vector3 attenuation = hitInfo.attenuation / (hitInfo.pdfValue * threshold);
+		if (attenuation.LengthSq() > 10)
+		{
+			return emitted;
+		}
 		_throughput *= attenuation;
 
 		// next ray into scene
