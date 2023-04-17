@@ -15,7 +15,7 @@ BITMAPINFO bitmapInfo;
 
 Raytracer* raytracer = nullptr;
 
-int resolutionShift = 1;
+int resolutionShift = 0;
 int width = 1280 >> resolutionShift;
 int height = 720 >> resolutionShift;
 

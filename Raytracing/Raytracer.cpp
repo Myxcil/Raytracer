@@ -12,7 +12,7 @@ Raytracer::Raytracer() :
 	imageHeight(0),
 	rcpDimension(0,0,0),
 	currLine(0),
-	samplesPerPixel(100),
+	samplesPerPixel(1000),
 	maxRaycastDepth(0),
 	maxRenderThreads(0),
 	isRunning(false),

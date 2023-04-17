@@ -33,5 +33,5 @@ void TraceableObject::OnHit(HitInfo& _hitInfo) const
 //----------------------------------------------------------------------------------------------------------------------------------------
 bool TraceableObject::IsEmissive() const
 {
-	return material->IsEmissive();
+	return material->IsImportant();
 }

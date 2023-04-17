@@ -20,7 +20,7 @@ public:
 	virtual double	PDF(const HitInfo& _hitInfo) const	{ return 0; }
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	virtual bool	IsEmissive() const { return false; }
+	virtual bool	IsImportant() const { return false; }
 	virtual Color	Emitted(const HitInfo& _hitInfo) const { return Color(0,0,0); }
 
 protected:
@@ -70,6 +70,7 @@ public:
 	//------------------------------------------------------------------------------------------------------------------------------------
 	DielectricMaterial(double _refractionIndex);
 	bool			Scatter(HitInfo& _hitInfo) const override;
+	bool			IsImportant() const override						{ return true; }
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
@@ -90,8 +91,8 @@ public:
 	DiffuseLight(const Color& _emit, bool _visible = true);
 
 	//------------------------------------------------------------------------------------------------------------------------------------
-	Color	Emitted(const HitInfo& _point) const override		{ return emit; }
-	bool	IsEmissive() const override							{ return true; }
+	bool			IsImportant() const override						{ return true; }
+	Color			Emitted(const HitInfo& _point) const override		{ return emit; }
 
 private:
 	//------------------------------------------------------------------------------------------------------------------------------------
