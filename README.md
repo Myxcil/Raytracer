@@ -1,5 +1,7 @@
 # Raytracer
 
+![Sample](/SampleImages/Screenshot 2023-04-16 193847.jpg)
+
 A small weekend project to get used to C++ again. Not using much of the newer features of the language ;)
 Code is adapted from 
 
